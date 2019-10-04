@@ -6,6 +6,6 @@
   },
   "scripts": {
     "build": "webpack -p",
-    "serve": "webpack-dev-server --hot --inline"
+    "serve": "webpack-dev-server --hot"
   }
 }
