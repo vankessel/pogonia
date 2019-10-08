@@ -1,4 +1,6 @@
 import * as $ from 'jquery';
+import * as m4 from './m4';
+import * as prim from './primitives'
 import * as glu from './webglUtils';
 import vertexShaderSource from './vertex.glsl';
 import frgmntShaderSource from './frgmnt.glsl';
@@ -15,18 +17,6 @@ function main(): void {
     new window.ResizeObserver(function (): void {
         glu.resizeCanvas(gl);
     }).observe(canvas);
-
-    // let vertexShaderSource = null,
-    //     frgmntShaderSource = null;
-    //
-    // const vertexPromise = $.get('vertex.glsl', null, function (data) {
-    //         vertexShaderSource = data;
-    //     }, 'text'),
-    //     frgmntPromise = $.get('frgmnt.glsl', null, function (data) {
-    //         frgmntShaderSource = data;
-    //     }, 'text');
-    //
-    // await Promise.all([vertexPromise, frgmntPromise]);
 
     const vertexShader = glu.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const frgmntShader = glu.createShader(gl, gl.FRAGMENT_SHADER, frgmntShaderSource);

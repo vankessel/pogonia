@@ -4,7 +4,8 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.ts'),
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: __dirname
+        contentBase: __dirname,
+        publicPath: '/dist/'
     },
     module: {
         rules: [
@@ -25,6 +26,6 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
     },
 };
