@@ -1,7 +1,7 @@
-export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: string): WebGLShader | null {
+export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: string): WebGLShader {
     const shader = gl.createShader(type);
-    if(!shader){
-        return null;
+    if (!shader) {
+        throw "Could not create shader.";
     }
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -9,15 +9,15 @@ export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: s
     if (!success) {
         console.log(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
-        return null;
+        throw "Could not create shader.";
     }
     return shader;
 }
 
-export function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, frgmntShader: WebGLShader): WebGLProgram | null {
+export function createProgramFromShaders(gl: WebGL2RenderingContext, vertexShader: WebGLShader, frgmntShader: WebGLShader): WebGLProgram {
     const program = gl.createProgram();
-    if(!program){
-        return null;
+    if (!program) {
+        throw "Could not create program.";
     }
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, frgmntShader);
@@ -26,7 +26,26 @@ export function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLSha
     if (!success) {
         console.log(gl.getProgramInfoLog(program));
         gl.deleteProgram(program);
-        return null;
+        throw "Could not create program.";
+    }
+    return program;
+}
+
+export function createProgramFromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, frgmntShaderSource: string): WebGLProgram {
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    const frgmntShader = createShader(gl, gl.FRAGMENT_SHADER, frgmntShaderSource);
+    const program = gl.createProgram();
+    if (!program) {
+        throw "Could not create program.";
+    }
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, frgmntShader);
+    gl.linkProgram(program);
+    const success = gl.getProgramParameter(program, gl.LINK_STATUS);
+    if (!success) {
+        console.log(gl.getProgramInfoLog(program));
+        gl.deleteProgram(program);
+        throw "Could not create program.";
     }
     return program;
 }

@@ -1,10 +1,22 @@
-export function projection(width: number, height: number, depth: number): number[] {
-    // Note: This matrix flips the Y axis so 0 is at the top.
+export function ortho(width: number, aspect: number, near: number, far: number): number[] {
+    const idz = 1 / (near - far);
+    const height = width * aspect;
     return [
-        2 / width, 0, 0, -1,
-        0, -2 / height, 0, 1,
-        0, 0, 2 / depth, 0,
+        1 / width, 0, 0, 0,
+        0, 1 / height, 0, 0,
+        0, 0, 2 * idz, (near + far) * idz,
         0, 0, 0, 1,
+    ];
+}
+
+export function projection(xFov: number, aspect: number, near: number, far: number): number[] {
+    const idz = 1 / (near - far);
+    const yFov = xFov * aspect;
+    return [
+        Math.atan(xFov / 2), 0, 0, 0,
+        0, Math.atan(yFov / 2), 0, 0,
+        0, 0, (near + far) * idz, 2 * near * far * idz,
+        0, 0, -1, 0,
     ];
 }
 
@@ -63,23 +75,23 @@ export function multiply(a: number[], b: number[]): number[] {
 }
 
 export function emultiply(s: number, m: number[]): number[] {
-    const m00 = s*m[0];
-    const m01 = s*m[1];
-    const m02 = s*m[2];
-    const m03 = s*m[3];
-    const m10 = s*m[4];
-    const m11 = s*m[5];
-    const m12 = s*m[6];
-    const m13 = s*m[7];
-    const m20 = s*m[8];
-    const m21 = s*m[9];
-    const m22 = s*m[10];
-    const m23 = s*m[11];
-    const m30 = s*m[12];
-    const m31 = s*m[13];
-    const m32 = s*m[14];
-    const m33 = s*m[15];
-    
+    const m00 = s * m[0];
+    const m01 = s * m[1];
+    const m02 = s * m[2];
+    const m03 = s * m[3];
+    const m10 = s * m[4];
+    const m11 = s * m[5];
+    const m12 = s * m[6];
+    const m13 = s * m[7];
+    const m20 = s * m[8];
+    const m21 = s * m[9];
+    const m22 = s * m[10];
+    const m23 = s * m[11];
+    const m30 = s * m[12];
+    const m31 = s * m[13];
+    const m32 = s * m[14];
+    const m33 = s * m[15];
+
     return [
         m00, m01, m02, m03,
         m10, m11, m12, m13,
@@ -185,7 +197,19 @@ export function translate(m: number[], dx: number, dy: number, dz: number): numb
     return multiply(m, translation(dx, dy, dz));
 }
 
-export function scale(m: number[], sx: number, sy: number, sz: number): number[] {
+// Scale uniformly if given 1 argument
+// Do not scale undefined dimension if given 2 arguments
+export function scale(m: number[], sx: number, sy?: number, sz?: number): number[] {
+    if (sy === undefined) {
+        if (sz === undefined) {
+            sy = sx;
+            sz = sx;
+        } else {
+            sy = 1;
+        }
+    } else if (sz === undefined) {
+        sz = 1;
+    }
     return multiply(m, scaling(sx, sy, sz));
 }
 
@@ -204,87 +228,87 @@ export function zRotate(m: number[], radians: number): number[] {
 export function inverse(m: number[]): number[] {
     const inv = new Array(16);
 
-    inv[0] = m[5]  * m[10] * m[15] -
-        m[5]  * m[11] * m[14] -
-        m[9]  * m[6]  * m[15] +
-        m[9]  * m[7]  * m[14] +
-        m[13] * m[6]  * m[11] -
-        m[13] * m[7]  * m[10];
+    inv[0] = m[5] * m[10] * m[15] -
+        m[5] * m[11] * m[14] -
+        m[9] * m[6] * m[15] +
+        m[9] * m[7] * m[14] +
+        m[13] * m[6] * m[11] -
+        m[13] * m[7] * m[10];
 
-    inv[4] = -m[4]  * m[10] * m[15] +
-        m[4]  * m[11] * m[14] +
-        m[8]  * m[6]  * m[15] -
-        m[8]  * m[7]  * m[14] -
-        m[12] * m[6]  * m[11] +
-        m[12] * m[7]  * m[10];
+    inv[4] = -m[4] * m[10] * m[15] +
+        m[4] * m[11] * m[14] +
+        m[8] * m[6] * m[15] -
+        m[8] * m[7] * m[14] -
+        m[12] * m[6] * m[11] +
+        m[12] * m[7] * m[10];
 
-    inv[8] = m[4]  * m[9] * m[15] -
-        m[4]  * m[11] * m[13] -
-        m[8]  * m[5] * m[15] +
-        m[8]  * m[7] * m[13] +
+    inv[8] = m[4] * m[9] * m[15] -
+        m[4] * m[11] * m[13] -
+        m[8] * m[5] * m[15] +
+        m[8] * m[7] * m[13] +
         m[12] * m[5] * m[11] -
         m[12] * m[7] * m[9];
 
-    inv[12] = -m[4]  * m[9] * m[14] +
-        m[4]  * m[10] * m[13] +
-        m[8]  * m[5] * m[14] -
-        m[8]  * m[6] * m[13] -
+    inv[12] = -m[4] * m[9] * m[14] +
+        m[4] * m[10] * m[13] +
+        m[8] * m[5] * m[14] -
+        m[8] * m[6] * m[13] -
         m[12] * m[5] * m[10] +
         m[12] * m[6] * m[9];
 
-    inv[1] = -m[1]  * m[10] * m[15] +
-        m[1]  * m[11] * m[14] +
-        m[9]  * m[2] * m[15] -
-        m[9]  * m[3] * m[14] -
+    inv[1] = -m[1] * m[10] * m[15] +
+        m[1] * m[11] * m[14] +
+        m[9] * m[2] * m[15] -
+        m[9] * m[3] * m[14] -
         m[13] * m[2] * m[11] +
         m[13] * m[3] * m[10];
 
-    inv[5] = m[0]  * m[10] * m[15] -
-        m[0]  * m[11] * m[14] -
-        m[8]  * m[2] * m[15] +
-        m[8]  * m[3] * m[14] +
+    inv[5] = m[0] * m[10] * m[15] -
+        m[0] * m[11] * m[14] -
+        m[8] * m[2] * m[15] +
+        m[8] * m[3] * m[14] +
         m[12] * m[2] * m[11] -
         m[12] * m[3] * m[10];
 
-    inv[9] = -m[0]  * m[9] * m[15] +
-        m[0]  * m[11] * m[13] +
-        m[8]  * m[1] * m[15] -
-        m[8]  * m[3] * m[13] -
+    inv[9] = -m[0] * m[9] * m[15] +
+        m[0] * m[11] * m[13] +
+        m[8] * m[1] * m[15] -
+        m[8] * m[3] * m[13] -
         m[12] * m[1] * m[11] +
         m[12] * m[3] * m[9];
 
-    inv[13] = m[0]  * m[9] * m[14] -
-        m[0]  * m[10] * m[13] -
-        m[8]  * m[1] * m[14] +
-        m[8]  * m[2] * m[13] +
+    inv[13] = m[0] * m[9] * m[14] -
+        m[0] * m[10] * m[13] -
+        m[8] * m[1] * m[14] +
+        m[8] * m[2] * m[13] +
         m[12] * m[1] * m[10] -
         m[12] * m[2] * m[9];
 
-    inv[2] = m[1]  * m[6] * m[15] -
-        m[1]  * m[7] * m[14] -
-        m[5]  * m[2] * m[15] +
-        m[5]  * m[3] * m[14] +
+    inv[2] = m[1] * m[6] * m[15] -
+        m[1] * m[7] * m[14] -
+        m[5] * m[2] * m[15] +
+        m[5] * m[3] * m[14] +
         m[13] * m[2] * m[7] -
         m[13] * m[3] * m[6];
 
-    inv[6] = -m[0]  * m[6] * m[15] +
-        m[0]  * m[7] * m[14] +
-        m[4]  * m[2] * m[15] -
-        m[4]  * m[3] * m[14] -
+    inv[6] = -m[0] * m[6] * m[15] +
+        m[0] * m[7] * m[14] +
+        m[4] * m[2] * m[15] -
+        m[4] * m[3] * m[14] -
         m[12] * m[2] * m[7] +
         m[12] * m[3] * m[6];
 
-    inv[10] = m[0]  * m[5] * m[15] -
-        m[0]  * m[7] * m[13] -
-        m[4]  * m[1] * m[15] +
-        m[4]  * m[3] * m[13] +
+    inv[10] = m[0] * m[5] * m[15] -
+        m[0] * m[7] * m[13] -
+        m[4] * m[1] * m[15] +
+        m[4] * m[3] * m[13] +
         m[12] * m[1] * m[7] -
         m[12] * m[3] * m[5];
 
-    inv[14] = -m[0]  * m[5] * m[14] +
-        m[0]  * m[6] * m[13] +
-        m[4]  * m[1] * m[14] -
-        m[4]  * m[2] * m[13] -
+    inv[14] = -m[0] * m[5] * m[14] +
+        m[0] * m[6] * m[13] +
+        m[4] * m[1] * m[14] -
+        m[4] * m[2] * m[13] -
         m[12] * m[1] * m[6] +
         m[12] * m[2] * m[5];
 
@@ -316,7 +340,7 @@ export function inverse(m: number[]): number[] {
         m[8] * m[1] * m[6] -
         m[8] * m[2] * m[5];
 
-    const invdet = 1/(m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12]);
+    const invdet = 1 / (m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12]);
 
     return emultiply(invdet, inv);
 }
