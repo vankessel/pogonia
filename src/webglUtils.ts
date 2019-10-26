@@ -1,3 +1,27 @@
+export function createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
+    const vao = gl.createVertexArray();
+    if (!vao) {
+        throw "Could not create vertex array object.";
+    }
+    return vao;
+}
+
+export function createBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
+    const buffer = gl.createBuffer();
+    if (!buffer) {
+        throw "Could not create positionBuffer.";
+    }
+    return buffer;
+}
+
+export function createTexture(gl: WebGL2RenderingContext): WebGLTexture {
+    const texture = gl.createTexture();
+    if (!texture) {
+        throw "Could not create texture.";
+    }
+    return texture;
+}
+
 export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: string): WebGLShader {
     const shader = gl.createShader(type);
     if (!shader) {
@@ -45,7 +69,7 @@ export function createProgramFromSource(gl: WebGL2RenderingContext, vertexShader
     if (!success) {
         console.log(gl.getProgramInfoLog(program));
         gl.deleteProgram(program);
-        throw "Could not create program.";
+        throw "Could not link program.";
     }
     return program;
 }
@@ -65,4 +89,12 @@ export function resizeCanvas(gl: WebGL2RenderingContext): void {
         canvas.height = displayHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
+}
+
+export function getContext(canvas: HTMLCanvasElement): WebGL2RenderingContext {
+    const gl = canvas.getContext('webgl2');
+    if (!gl) {
+        throw "Could not create context.";
+    }
+    return gl;
 }

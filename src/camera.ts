@@ -1,42 +1,28 @@
-import { Rigid } from './primitives';
-import * as m4 from './m4';
+import {Rigid} from './primitives';
+import {mat4, quat} from 'gl-matrix';
 
 export default class Camera extends Rigid {
-    projection: number[];
+    projection: mat4;
 
-    private inverseTransform: number[];
-    private inverseTransformMemoized: boolean;
+    private transformMemoizedValue: mat4;
+    private inverseTransformMemoizedValue: mat4;
 
-    constructor(xFov: number, aspect: number, near: number, far: number) {
+    constructor(yFov: number, aspect: number, near: number, far: number) {
         super();
-        this.projection = m4.projection(xFov, aspect, near, far);
-        this.inverseTransform = m4.inverse(this._transform);
-        this.inverseTransformMemoized = true;
+        this.projection = mat4.perspective(mat4.create(), yFov, aspect, near, far);
+        this.transformMemoizedValue = mat4.clone(this.transform);
+        this.inverseTransformMemoizedValue = this.getInverseTransform();
     }
 
-    // Must override getter even though it hasn't changed from subclass
-    // because we override the setter due to a TypeScript quirk.
-    // https://stackoverflow.com/q/28950760
-    get transform(): number[] {
-        return this._transform;
-    }
-
-    set transform(value: number[]) {
-        this._transform = value;
-        this.inverseTransformMemoized = false;
-    }
-
-    get worldToView(): number[] {
-        if (!this.inverseTransformMemoized) {
-            this.inverseTransform = m4.inverse(this.transform);
-            this.inverseTransformMemoized = true;
+    getWorldToView(): mat4 {
+        if (!mat4.exactEquals(this.transform, this.transformMemoizedValue)) {
+            this.transformMemoizedValue = mat4.clone(this.transform);
+            this.inverseTransformMemoizedValue = this.getInverseTransform();
         }
-        return this.inverseTransform;
+        return mat4.clone(this.inverseTransformMemoizedValue);
     }
 
-    set worldToView(mat4: number[]) {
-        this._transform = m4.inverse(mat4);
-        this.inverseTransform = mat4;
-        this.inverseTransformMemoized = true;
+    getSkyboxWorldToView(): mat4 {
+        return mat4.fromQuat(mat4.create(), mat4.getRotation(quat.create(), this.getWorldToView()));
     }
 }

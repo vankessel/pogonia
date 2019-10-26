@@ -1,4 +1,7 @@
-import * as m4 from './m4';
+// import * as m4 from './m4';
+import {mat4, vec3} from 'gl-matrix';
+import * as glu from "./webglUtils";
+import {AttribLoc} from "./constants";
 
 interface AttribOptions {
     size: GLint;
@@ -13,11 +16,11 @@ interface Translatable {
 }
 
 interface Rotatable {
-    xRotate(radians: number): void;
+    rotateX(radians: number): void;
 
-    yRotate(radians: number): void;
+    rotateY(radians: number): void;
 
-    zRotate(radians: number): void;
+    rotateZ(radians: number): void;
 }
 
 interface Scalable {
@@ -26,49 +29,116 @@ interface Scalable {
 
 // All transformations with determinant = 1
 export class Rigid implements Translatable, Rotatable {
-    protected _transform: number[];
+    transform: mat4;
 
     constructor() {
-        this._transform = m4.identity();
+        this.transform = mat4.create();
     }
 
-    get transform(): number[] {
-        return this._transform;
+    getInverseTransform(): mat4 {
+        const inverseTransform = mat4.invert(mat4.create(), this.transform);
+        if (!inverseTransform) {
+            throw "Can't invert transform.";
+        }
+        return inverseTransform;
     }
 
-    set transform(mat4: number[]) {
-        this._transform = mat4;
+    getRight(): vec3 {
+        return vec3.clone([
+            this.transform[0],
+            this.transform[1],
+            this.transform[2],
+        ]);
+    }
+
+    getLeft(): vec3 {
+        return vec3.clone([
+            -this.transform[0],
+            -this.transform[1],
+            -this.transform[2],
+        ]);
+    }
+
+    getUp(): vec3 {
+        return vec3.clone([
+            this.transform[4],
+            this.transform[5],
+            this.transform[6],
+        ]);
+    }
+
+    getDown(): vec3 {
+        return vec3.clone([
+            -this.transform[4],
+            -this.transform[5],
+            -this.transform[6],
+        ]);
+    }
+
+    getForward(): vec3 {
+        return vec3.clone([
+            this.transform[8],
+            this.transform[9],
+            this.transform[10],
+        ]);
+    }
+
+    getBackward(): vec3 {
+        return vec3.clone([
+            -this.transform[8],
+            -this.transform[9],
+            -this.transform[10],
+        ]);
     }
 
     translate(dx: number, dy: number, dz: number): void {
-        this.transform = m4.translate(this.transform, dx, dy, dz)
+        mat4.translate(this.transform, this.transform, [dx, dy, dz]);
     }
 
-    xRotate(radians: number): void {
-        this.transform = m4.xRotate(this.transform, radians);
+    rotateX(radians: number): void {
+        mat4.rotateX(this.transform, this.transform, radians);
     }
 
-    yRotate(radians: number): void {
-        this.transform = m4.yRotate(this.transform, radians);
+    rotateY(radians: number): void {
+        mat4.rotateY(this.transform, this.transform, radians);
     }
 
-    zRotate(radians: number): void {
-        this.transform = m4.zRotate(this.transform, radians);
+    rotateZ(radians: number): void {
+        mat4.rotateZ(this.transform, this.transform, radians);
+    }
+
+    rotateAxis(radians: number, axis: vec3 | number[]) {
+        mat4.rotate(this.transform, this.transform, radians, axis);
     }
 
 }
 
 export class Affine extends Rigid implements Scalable {
     scale(sx: number, sy?: number, sz?: number): void {
-        this.transform = m4.scale(this.transform, sx, sy, sz);
+        if (sy === undefined) {
+            if (sz === undefined) {
+                sy = sx;
+                sz = sx;
+            } else {
+                sy = 1;
+            }
+        } else if (sz === undefined) {
+            sz = 1;
+        }
+        mat4.scale(this.transform, this.transform, [sx, sy, sz]);
     }
 }
 
 export class Shape extends Affine {
+    static vao: WebGLVertexArrayObject;
+    static indexBuffer: WebGLBuffer;
+    static indexArray: Uint16Array;
+    static positionBuffer: WebGLBuffer;
     static positionArray: Float32Array;
+    static mode = WebGL2RenderingContext.TRIANGLES;
     static attribOptions: AttribOptions = {
         size: 3,
-        type: 5126, // gl.FLOAT
+        type: WebGL2RenderingContext.FLOAT,
         normalize: false,
         stride: 0,
         offset: 0
@@ -77,24 +147,63 @@ export class Shape extends Affine {
     constructor() {
         super();
     }
+
+    static initVao(gl: WebGL2RenderingContext): void {
+        if (this.vao) {
+            return;
+        }
+        this.vao = glu.createVao(gl);
+        gl.bindVertexArray(this.vao);
+
+        if (!this.indexBuffer) {
+            this.indexBuffer = glu.createBuffer(gl);
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indexArray, gl.STATIC_DRAW);
+        
+        if (!this.positionBuffer) {
+            this.positionBuffer = glu.createBuffer(gl);
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.positionArray, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(
+            AttribLoc.POSITION,
+            this.attribOptions.size,
+            this.attribOptions.type,
+            this.attribOptions.normalize,
+            this.attribOptions.stride,
+            this.attribOptions.offset,
+        );
+        gl.enableVertexAttribArray(AttribLoc.POSITION);
+    }
 }
 
 export class Cube extends Shape {
-    static positionArray: Float32Array = new Float32Array([
-        -0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
+    static positionArray = new Float32Array([
         0.5, 0.5, 0.5,
-        0.5, -0.5, 0.5,
         -0.5, 0.5, 0.5,
-        - 0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+    ]);
+    // TODO: Fix winding. Swap first two elements?
+    static indexArray = new Uint16Array([
+        1, 0, 3, 2, 6, 0, 4, 1, 5, 3, 7, 6, 5, 4
+    ]);
+    static mode = WebGL2RenderingContext.TRIANGLE_STRIP;
+}
+
+export class Skybox extends Cube {
+    static indexArray = new Uint16Array([
+        1, 0, 3, 2, 6, 0, 4, 1, 5, 3, 7, 6, 5, 4
     ]);
 }
 
 export class BigF extends Shape {
-    static setGeometry(gl: WebGL2RenderingContext): void {
-        const data = new Float32Array([
+    static positionArray = new Float32Array([
             // left column front
             0, 0, 0,
             0, 150, 0,
@@ -224,148 +333,8 @@ export class BigF extends Shape {
             0, 150, 0,
         ]).map(function (val: number) {
             return val / 300;
-        });
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            data,
-            gl.STATIC_DRAW);
-    }
-
-    // Fill the buffer with colors for the 'F'.
-    static setColors(gl: WebGL2RenderingContext): void {
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Uint8Array([
-                // left column front
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-
-                // top rung front
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-
-                // middle rung front
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-                200, 70, 120,
-
-                // left column back
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-
-                // top rung back
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-
-                // middle rung back
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-                80, 70, 200,
-
-                // top
-                70, 200, 210,
-                70, 200, 210,
-                70, 200, 210,
-                70, 200, 210,
-                70, 200, 210,
-                70, 200, 210,
-
-                // top rung right
-                200, 200, 70,
-                200, 200, 70,
-                200, 200, 70,
-                200, 200, 70,
-                200, 200, 70,
-                200, 200, 70,
-
-                // under top rung
-                210, 100, 70,
-                210, 100, 70,
-                210, 100, 70,
-                210, 100, 70,
-                210, 100, 70,
-                210, 100, 70,
-
-                // between top rung and middle
-                210, 160, 70,
-                210, 160, 70,
-                210, 160, 70,
-                210, 160, 70,
-                210, 160, 70,
-                210, 160, 70,
-
-                // top of middle rung
-                70, 180, 210,
-                70, 180, 210,
-                70, 180, 210,
-                70, 180, 210,
-                70, 180, 210,
-                70, 180, 210,
-
-                // right of middle rung
-                100, 70, 210,
-                100, 70, 210,
-                100, 70, 210,
-                100, 70, 210,
-                100, 70, 210,
-                100, 70, 210,
-
-                // bottom of middle rung.
-                76, 210, 100,
-                76, 210, 100,
-                76, 210, 100,
-                76, 210, 100,
-                76, 210, 100,
-                76, 210, 100,
-
-                // right of bottom
-                140, 210, 80,
-                140, 210, 80,
-                140, 210, 80,
-                140, 210, 80,
-                140, 210, 80,
-                140, 210, 80,
-
-                // bottom
-                90, 130, 110,
-                90, 130, 110,
-                90, 130, 110,
-                90, 130, 110,
-                90, 130, 110,
-                90, 130, 110,
-
-                // left side
-                160, 160, 220,
-                160, 160, 220,
-                160, 160, 220,
-                160, 160, 220,
-                160, 160, 220,
-                160, 160, 220,
-            ]),
-            gl.STATIC_DRAW);
-    }
+    });
+    static indexArray = new Uint16Array(Array.from(Array(BigF.positionArray.length/3).keys()));
 }
 
 export class BasicTriangle extends Shape {
