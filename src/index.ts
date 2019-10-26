@@ -4,54 +4,14 @@ import vertexShaderSource from './shaders/vertex.glsl';
 import frgmntShaderSource from './shaders/frgmnt.glsl';
 import skyboxVertexShaderSource from './shaders/skybox/vertex.glsl';
 import skyboxFrgmntShaderSource from './shaders/skybox/frgmnt.glsl';
-import Camera from './camera';
+import Camera, {ControllableCamera} from './camera';
 import Renderer from './renderer';
 import Scene from "./scene";
 import {World} from "./constants";
-import {mat4} from "gl-matrix";
+import {initInputState, InputState} from "./input";
 
-const mouse: {mousedown: boolean; movementX: number; movementY: number} = {
-    mousedown: false,
-    movementX: 0,
-    movementY: 0,
-};
-
-function initEventHandlers(canvas: HTMLCanvasElement): void {
-    canvas.addEventListener('mousedown', function(event) {
-        mouse.mousedown = true;
-        mouse.movementX = 0;
-        mouse.movementY = 0;
-    });
-    canvas.addEventListener('mouseup', function(event) {
-        mouse.mousedown = false;
-        mouse.movementX = 0;
-        mouse.movementY = 0;
-    });
-    canvas.addEventListener('mousemove', function(event) {
-        if (mouse.mousedown) {
-            mouse.movementX = event.movementX;
-            mouse.movementY = event.movementY;
-        } else {
-            mouse.movementX = 0;
-            mouse.movementY = 0;
-        }
-    });
-}
-
-function update(deltaTime: number, scene: Scene): void {
-    scene.activeCamera.rotateX(-mouse.movementY * deltaTime);
-    // Rotate camera model space relative to world up axis
-    const tx = scene.activeCamera.transform[12];
-    const ty = scene.activeCamera.transform[13];
-    const tz = scene.activeCamera.transform[14];
-    scene.activeCamera.transform[12] = 0;
-    scene.activeCamera.transform[13] = 0;
-    scene.activeCamera.transform[14] = 0;
-    const rotMat = mat4.fromRotation(mat4.create(), -mouse.movementX * deltaTime, World.UP);
-    mat4.multiply(scene.activeCamera.transform, rotMat, scene.activeCamera.transform);
-    scene.activeCamera.transform[12] = tx;
-    scene.activeCamera.transform[13] = ty;
-    scene.activeCamera.transform[14] = tz;
+function update(deltaTime: number, scene: Scene, input: InputState): void {
+    scene.activeCamera.update(deltaTime, input);
 }
 
 function draw(deltaTime: number, gl: WebGL2RenderingContext, scene: Scene): void {
@@ -61,14 +21,14 @@ function draw(deltaTime: number, gl: WebGL2RenderingContext, scene: Scene): void
     Renderer.drawSkybox(gl, scene.activeCamera, scene.drawables[0].shape, scene.drawables[0].program);
 }
 
-function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene): void {
+function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: InputState): void {
     let lastMilliseconds = performance.now();
-    scene.activeCamera.rotateAxis(Math.PI/8, World.UP);
+    scene.activeCamera.rotateAxis(Math.PI / 8, World.UP);
 
     function renderLoop(milliseconds: number): void {
         const deltaTime = (milliseconds - lastMilliseconds) * 0.001;
 
-        update(deltaTime, scene);
+        update(deltaTime, scene, inputState);
         draw(deltaTime, gl, scene);
 
         lastMilliseconds = milliseconds;
@@ -80,15 +40,15 @@ function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene): void {
 
 function initScene(gl: WebGL2RenderingContext): Scene {
 
-    const camera = new Camera(Math.PI / 2, 4 / 3, 0.1, 32);
-    camera.translate(0, 0, 2);
+    const camera = new ControllableCamera(Math.PI / 2, 4 / 3, 0.1, 32);
+    camera.translate([0, 0, 2]);
 
     const skybox = new Skybox();
     const bigf = new BigF();
     const cube = new Cube();
     cube.scale(0.25);
 
-    bigf.translate(1, 1, -0.5);
+    bigf.translate([1, 1, -0.5]);
     bigf.rotateZ(Math.PI / 4);
     // Create program
     const mainProgram = glu.createProgramFromSource(gl, vertexShaderSource, frgmntShaderSource);
@@ -184,7 +144,8 @@ function initScene(gl: WebGL2RenderingContext): Scene {
 function main(): void {
     // Set up context
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-    initEventHandlers(canvas);
+    canvas.focus();
+    const inputState = initInputState(canvas);
     const gl = glu.getContext(canvas);
 
     // Set up resizing
@@ -201,7 +162,7 @@ function main(): void {
     gl.clearColor(0, 0, 0, 1);
 
     const scene = initScene(gl);
-    startRenderLoop(gl, scene);
+    startRenderLoop(gl, scene, inputState);
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -1,4 +1,4 @@
-import Camera from './camera';
+import Camera, {ControllableCamera} from './camera';
 import {Shape} from './primitives';
 
 interface Drawable {
@@ -7,11 +7,11 @@ interface Drawable {
 }
 
 export default class Scene {
-    activeCamera: Camera;
+    activeCamera: ControllableCamera;
     cameras: Camera[];
     drawables: Drawable[];
 
-    constructor(camera: Camera, drawables?: Drawable[]) {
+    constructor(camera: ControllableCamera, drawables?: Drawable[]) {
         this.activeCamera = camera;
         this.cameras = [camera];
         this.drawables = drawables ? drawables : [];
