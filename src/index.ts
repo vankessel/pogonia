@@ -10,6 +10,12 @@ import {initInputState, InputState} from "./input";
 import {mat4} from "gl-matrix";
 import {World} from "./constants";
 import RenderUtil from "./renderUtil";
+import skyboxRightSrc from '../assets/skybox/right.jpg';
+import skyboxLeftSrc from '../assets/skybox/left.jpg';
+import skyboxTopSrc from '../assets/skybox/top.jpg';
+import skyboxBottomSrc from '../assets/skybox/bottom.jpg';
+import skyboxBackSrc from '../assets/skybox/back.jpg';
+import skyboxFrontSrc from '../assets/skybox/front.jpg';
 
 function update(deltaTime: number, input: InputState, scene: Scene): void {
     for (const updatable of scene.updatables) {
@@ -59,7 +65,7 @@ function initScene(gl: WebGL2RenderingContext): Scene {
         32
     );
     camera.translate([0, 0, 2]);
-    const cameraController = new Updater(camera, function(camera: Camera, deltaTime: number, input: InputState): void {
+    const cameraController = new Updater(camera, function (camera: Camera, deltaTime: number, input: InputState): void {
         let cameraDeltaX = 0;
         let cameraDeltaY = 0;
         if (input.mouse.pressed && input.mouse.button === 0) {
@@ -142,37 +148,37 @@ function initScene(gl: WebGL2RenderingContext): Scene {
         gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255])); // FRONT
 
     const skyboxRight = new Image();
-    skyboxRight.src = 'assets/skybox/right.jpg';
+    skyboxRight.src = skyboxRightSrc;
     skyboxRight.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxRight);
     });
     const skyboxLeft = new Image();
-    skyboxLeft.src = 'assets/skybox/left.jpg';
+    skyboxLeft.src = skyboxLeftSrc;
     skyboxLeft.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxLeft);
     });
     const skyboxTop = new Image();
-    skyboxTop.src = 'assets/skybox/top.jpg';
+    skyboxTop.src = skyboxTopSrc;
     skyboxTop.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxTop);
     });
     const skyboxBottom = new Image();
-    skyboxBottom.src = 'assets/skybox/bottom.jpg';
+    skyboxBottom.src = skyboxBottomSrc;
     skyboxBottom.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBottom);
     });
     const skyboxBack = new Image();
-    skyboxBack.src = 'assets/skybox/back.jpg';
+    skyboxBack.src = skyboxBackSrc;
     skyboxBack.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBack);
     });
     const skyboxFront = new Image();
-    skyboxFront.src = 'assets/skybox/front.jpg';
+    skyboxFront.src = skyboxFrontSrc;
     skyboxFront.addEventListener('load', function () {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxFront);

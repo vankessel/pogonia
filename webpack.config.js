@@ -5,24 +5,33 @@ module.exports = {
     devtool: 'inline-source-map',
     devServer: {
         contentBase: __dirname,
-        publicPath: '/dist/'
+        publicPath: '/dist/',
     },
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                use: 'ts-loader',
+                loader: 'ts-loader',
                 exclude: /node_modules/,
             },
             {
                 test: /\.glsl$/,
-                use: 'raw-loader',
+                loader: 'raw-loader',
                 exclude: /node_modules/,
-            }
+            },
+            {
+                test: /\.(jpg|png)$/,
+                loader: 'file-loader',
+                exclude: /node_modules/,
+                options: {
+                    name: '[path][name].[ext]',
+                    publicPath: 'dist/',
+                },
+            },
         ],
     },
     resolve: {
-        extensions: [ '.ts', '.js', '.glsl'],
+        extensions: ['.ts', '.js'],
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
