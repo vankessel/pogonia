@@ -74,19 +74,42 @@ export function createProgramFromSource(gl: WebGL2RenderingContext, vertexShader
     return program;
 }
 
+export interface ViewportInfo {
+    bounds: {
+        left: number;
+        bottom: number;
+        right: number;
+        top: number;
+    };
+    width: number;
+    height: number;
+}
+
+export function getViewportInfo(gl: WebGL2RenderingContext): ViewportInfo {
+    const viewportParams = gl.getParameter(gl.VIEWPORT);
+    return {
+        bounds: {
+            left: viewportParams[0],
+            bottom: viewportParams[1],
+            right: viewportParams[2],
+            top: viewportParams[3],
+        },
+        width: viewportParams[2] - viewportParams[0],
+        height: viewportParams[3] - viewportParams[1]
+    };
+}
+
 export function resizeCanvas(gl: WebGL2RenderingContext): void {
     // Lookup the size the browser is displaying the canvas.
     const canvas = gl.canvas as HTMLCanvasElement;
-    const displayWidth = canvas.clientWidth,
-        displayHeight = canvas.clientHeight;
 
     // Check if the canvas is not the same size.
-    if (canvas.width !== displayWidth ||
-        canvas.height !== displayHeight) {
+    if (canvas.width !== canvas.clientWidth ||
+        canvas.height !== canvas.clientHeight) {
 
         // Make the canvas the same size
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
 }

@@ -1,39 +1,57 @@
-import Camera, {ControllableCamera} from './camera';
-import {Shape} from './primitives';
+import Camera from './camera';
+import {InputState} from "./input";
 
-interface Drawable {
-    program: WebGLProgram;
-    shape: Shape;
+export interface Updatable {
+    update(deltaTime: number, input: InputState): void;
+}
+
+export interface Drawable {
+    draw(gl: WebGL2RenderingContext): void;
+}
+
+export class Updater<T> implements Updatable {
+    target: T;
+    updateFunction: (target: T, deltaTime: number, input: InputState) => void;
+
+    constructor(target: T, func: (target: T, deltaTime: number, input: InputState) => void) {
+        this.target = target;
+        this.updateFunction = func;
+    }
+
+    update(deltaTime: number, input: InputState): void {
+        this.updateFunction(this.target, deltaTime, input);
+    }
+}
+
+export class Drawer<T> implements Drawable {
+    target: T;
+    drawFunction: (target: T, gl: WebGL2RenderingContext) => void;
+
+    constructor(target: T, func: (target: T, gl: WebGL2RenderingContext) => void) {
+        this.target = target;
+        this.drawFunction = func;
+    }
+
+    draw(gl: WebGL2RenderingContext): void {
+        this.drawFunction(this.target, gl);
+    }
 }
 
 export default class Scene {
-    activeCamera: ControllableCamera;
-    cameras: Camera[];
+    camera: Camera;
+    skybox: Drawable;
+    updatables: Updatable[];
     drawables: Drawable[];
 
-    constructor(camera: ControllableCamera, drawables?: Drawable[]) {
-        this.activeCamera = camera;
-        this.cameras = [camera];
-        this.drawables = drawables ? drawables : [];
-    }
-
-    getCamera(idx: number): Camera {
-        return this.cameras[idx];
-    }
-
-    addCamera(camera: Camera): void {
-        this.cameras.push(camera);
-    }
-
-    addCameras(cameras: Camera[]): void {
-        this.cameras.concat(cameras)
-    }
-
-    addDrawable(drawable: Drawable): void {
-        this.drawables.push(drawable);
-    }
-
-    addDrawables(drawables: Drawable[]): void {
-        this.drawables.concat(drawables);
+    constructor(
+        camera: Camera,
+        skybox: Drawable,
+        updatables: Updatable[] = [],
+        drawables: Drawable[] = []
+    ) {
+        this.camera = camera;
+        this.skybox = skybox;
+        this.updatables = updatables;
+        this.drawables = drawables;
     }
 }
