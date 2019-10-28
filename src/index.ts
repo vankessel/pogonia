@@ -4,6 +4,7 @@ import {initInputState, InputState} from './input';
 import initScene from "./scenes/cityscape";
 
 function update(deltaTime: number, input: InputState, scene: Scene): void {
+
     for (const updatable of scene.updatables) {
         updatable.update(deltaTime, input);
     }
@@ -22,8 +23,12 @@ function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: I
     function renderLoop(milliseconds: number): void {
         const deltaTime = (milliseconds - lastMilliseconds) * 0.001;
 
+        inputState.mouse.movement.x = inputState.mouse.position.x - inputState.mouse.lastPosition.x;
+        inputState.mouse.movement.y = inputState.mouse.position.y - inputState.mouse.lastPosition.y;
         update(deltaTime, inputState, scene);
         draw(deltaTime, gl, scene);
+        inputState.mouse.lastPosition.x = inputState.mouse.position.x;
+        inputState.mouse.lastPosition.y = inputState.mouse.position.y;
 
         lastMilliseconds = milliseconds;
         requestAnimationFrame(renderLoop);

@@ -1,13 +1,11 @@
-import Scene, {Drawer, Updater} from "../scene";
+import Scene, {Drawer} from "../scene";
 import * as glu from "../webglUtils";
 import vertexShaderSource from "../shaders/vertex.glsl";
 import frgmntShaderSource from "../shaders/frgmnt.glsl";
 import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
 import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
-import Camera from "../camera";
-import {InputState} from "../input";
-import {mat4, vec4} from "gl-matrix";
-import {World} from "../constants";
+import Camera, {initStandardCameraController} from "../camera";
+import {vec4} from "gl-matrix";
 import {Cube} from "../primitives";
 import RenderUtil from "../renderUtil";
 
@@ -31,27 +29,76 @@ function generateBuildings(
 ): Drawer<Cube>[] {
     const drawRoadFunc = RenderUtil.drawFunction(camera, program, LabelColors.ROAD);
     const drawBuildingFunc = RenderUtil.drawFunction(camera, program, LabelColors.BUILDING);
+    const drawSidewalkFunc = RenderUtil.drawFunction(camera, program, LabelColors.SIDEWALK);
+
+    const buildingWidthD2 = buildingWidth / 2;
     const buildingSpacing = buildingWidth + spacing;
-    const pos = {x: 0, y: 0};
+    const pos = {x: 0, z: 0};
     const fullWidth = buildingSpacing * numHor - spacing;
     const fullHeight = buildingSpacing * numVert - spacing;
     const leftBound = -fullWidth / 2;
     const bottomBound = -fullHeight / 2;
     const shapes = [];
+
+    // Road
+    const roadPlane = new Cube();
+    roadPlane.scale([fullWidth * 16, 1, fullHeight * 16]);
+    roadPlane.translate([0, -0.5, 0]);
+    shapes.push(new Drawer(roadPlane, drawRoadFunc));
+
+    // Buildings
     for (let col = 0; col < numHor; col++) {
         for (let row = 0; row < numVert; row++) {
-            pos.x = leftBound+buildingWidth/2 + col * buildingSpacing;
-            pos.y = bottomBound+buildingWidth/2 + row * buildingSpacing;
+            pos.x = leftBound + buildingWidthD2 + col * buildingSpacing;
+            pos.z = bottomBound + buildingWidthD2 + row * buildingSpacing;
             const building = new Cube();
-            building.translate([pos.x, buildingHeight / 2, pos.y]);
+            building.translate([pos.x, buildingHeight / 2, pos.z]);
             building.scale([buildingWidth, buildingHeight, buildingWidth]);
             shapes.push(new Drawer(building, drawBuildingFunc));
         }
     }
-    const roadPlane = new Cube();
-    roadPlane.scale([fullWidth*4, 1, fullHeight*4]);
-    roadPlane.translate([0, -0.5, 0]);
-    shapes.push(new Drawer(roadPlane, drawRoadFunc));
+
+    const sidewalkWidth = 0.25;
+    const sidewalkWidthD2 = sidewalkWidth / 2;
+    const sidewalkWidthM2 = sidewalkWidth * 2;
+    const sidewalkHeight = 0.05;
+    // Sidewalks
+    for (let col = 0; col < numHor; col++) {
+        for (let row = 0; row < numVert; row++) {
+            pos.x = leftBound + buildingWidthD2 + col * buildingSpacing;
+            pos.z = bottomBound + buildingWidthD2 + row * buildingSpacing;
+            let sx, sz;
+            // Pos x
+            sx = pos.x + buildingWidthD2 + sidewalkWidthD2;
+            sz = pos.z;
+            const sidewalkNorth = new Cube();
+            sidewalkNorth.translate([sx, sidewalkHeight / 2, sz]);
+            sidewalkNorth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
+            shapes.push(new Drawer(sidewalkNorth, drawSidewalkFunc));
+            // Neg x
+            sx = pos.x - buildingWidthD2 - sidewalkWidthD2;
+            sz = pos.z;
+            const sidewalkSouth = new Cube();
+            sidewalkSouth.translate([sx, sidewalkHeight / 2, sz]);
+            sidewalkSouth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
+            shapes.push(new Drawer(sidewalkSouth, drawSidewalkFunc));
+            // Pos z
+            sx = pos.x;
+            sz = pos.z + buildingWidthD2 + sidewalkWidthD2;
+            const sidewalkEast = new Cube();
+            sidewalkEast.translate([sx, sidewalkHeight / 2, sz]);
+            sidewalkEast.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
+            shapes.push(new Drawer(sidewalkEast, drawSidewalkFunc));
+            // Neg z
+            sx = pos.x;
+            sz = pos.z - buildingWidthD2 - sidewalkWidthD2;
+            const sidewalkWest = new Cube();
+            sidewalkWest.translate([sx, sidewalkHeight / 2, sz]);
+            sidewalkWest.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
+            shapes.push(new Drawer(sidewalkWest, drawSidewalkFunc));
+        }
+    }
+
     return shapes;
 }
 
@@ -71,44 +118,11 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         Math.PI / 2,
         viewportInfo.width / viewportInfo.height,
         0.1,
-        64
+        128
     );
     camera.translate([0, 4, 0]);
-    camera.rotateX(-Math.PI/4);
-    const cameraController = new Updater(camera, function (camera: Camera, deltaTime: number, input: InputState): void {
-        let cameraDeltaX = 0;
-        let cameraDeltaY = 0;
-        if (input.mouse.pressed && input.mouse.button === 0) {
-            cameraDeltaX = input.mouse.movement.x;
-            cameraDeltaY = input.mouse.movement.y;
-        }
-        camera.rotateX(-cameraDeltaY * deltaTime);
-        // Rotate camera at its position relative to world up axis
-        const tx = camera.transform[12];
-        const ty = camera.transform[13];
-        const tz = camera.transform[14];
-        camera.transform[12] = 0;
-        camera.transform[13] = 0;
-        camera.transform[14] = 0;
-        const rotMat = mat4.fromRotation(mat4.create(), -cameraDeltaX * deltaTime, World.UP);
-        mat4.multiply(camera.transform, rotMat, camera.transform);
-        camera.transform[12] = tx;
-        camera.transform[13] = ty;
-        camera.transform[14] = tz;
-
-        if (input.keys.w) {
-            camera.translate([0, 0, -deltaTime]);
-        }
-        if (input.keys.a) {
-            camera.translate([-deltaTime, 0, 0]);
-        }
-        if (input.keys.s) {
-            camera.translate([0, 0, deltaTime]);
-        }
-        if (input.keys.d) {
-            camera.translate([deltaTime, 0, 0]);
-        }
-    });
+    camera.rotateX(-Math.PI / 4);
+    const cameraController = initStandardCameraController(gl, camera);
 
     const buildings = generateBuildings(
         3,
@@ -120,7 +134,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         mainProgram
     );
     const origin = new Cube();
-    const drawRoadFunc = RenderUtil.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
+    const drawVegFunc = RenderUtil.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
 
     return new Scene(
         camera,
@@ -128,7 +142,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
             cameraController
         ],
         [
-            new Drawer(origin, drawRoadFunc),
+            new Drawer(origin, drawVegFunc),
             ...buildings
         ]
     );

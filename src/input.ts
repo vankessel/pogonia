@@ -3,6 +3,10 @@ export interface InputState {
         pressed: boolean;
         button: number;
         buttons: number;
+        lastPosition: {
+            x: number;
+            y: number;
+        };
         position: {
             x: number;
             y: number;
@@ -24,6 +28,7 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
             pressed: false,
             button: 0,
             buttons: 0,
+            lastPosition: {x: 0, y: 0},
             position: {x: 0, y: 0},
             movement: {x: 0, y: 0},
         },
@@ -41,8 +46,6 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
         input.mouse.buttons = event.buttons;
         input.mouse.position.x = event.offsetX;
         input.mouse.position.y = event.offsetY;
-        input.mouse.movement.x = event.movementX;
-        input.mouse.movement.y = event.movementY;
     });
 
     canvas.addEventListener('mouseup', function (event) {
@@ -51,15 +54,11 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
         input.mouse.buttons = event.buttons;
         input.mouse.position.x = event.offsetX;
         input.mouse.position.y = event.offsetY;
-        input.mouse.movement.x = event.movementX;
-        input.mouse.movement.y = event.movementY;
     });
 
     canvas.addEventListener('mousemove', function (event) {
         input.mouse.position.x = event.offsetX;
         input.mouse.position.y = event.offsetY;
-        input.mouse.movement.x = event.movementX;
-        input.mouse.movement.y = event.movementY;
     });
 
     canvas.addEventListener('mouseenter', function () {
