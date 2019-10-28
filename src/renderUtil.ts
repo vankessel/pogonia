@@ -1,10 +1,12 @@
 import {Shape} from './primitives';
 import Camera from './camera';
+import {vec4} from 'gl-matrix';
 
 export default class RenderUtil {
     static drawFunction(
         camera: Camera,
-        program: WebGLProgram
+        program: WebGLProgram,
+        color: vec4 | number[],
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
         return function(shape: Shape, gl: WebGL2RenderingContext): void {
             const staticShape = shape.constructor as typeof Shape;
@@ -20,6 +22,9 @@ export default class RenderUtil {
             gl.uniformMatrix4fv(modelToWorldLoc, false, shape.transform);
             gl.uniformMatrix4fv(worldToViewLoc, false, camera.getWorldToView());
             gl.uniformMatrix4fv(ViewToClipLoc, false, camera.projection);
+
+            const colorLoc = gl.getUniformLocation(program, 'u_color');
+            gl.uniform4fv(colorLoc, color);
 
             // Draw
             gl.drawElements(

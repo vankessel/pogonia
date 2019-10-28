@@ -39,18 +39,15 @@ export class Drawer<T> implements Drawable {
 
 export default class Scene {
     camera: Camera;
-    skybox: Drawable;
     updatables: Updatable[];
     drawables: Drawable[];
 
     constructor(
         camera: Camera,
-        skybox: Drawable,
         updatables: Updatable[] = [],
         drawables: Drawable[] = []
     ) {
         this.camera = camera;
-        this.skybox = skybox;
         this.updatables = updatables;
         this.drawables = drawables;
     }

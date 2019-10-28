@@ -113,18 +113,12 @@ export class Rigid implements Translatable, Rotatable {
 }
 
 export class Affine extends Rigid implements Scalable {
-    scale(sx: number, sy?: number, sz?: number): void {
-        if (sy === undefined) {
-            if (sz === undefined) {
-                sy = sx;
-                sz = sx;
-            } else {
-                sy = 1;
-            }
-        } else if (sz === undefined) {
-            sz = 1;
+    scale(s: number | number[] | vec3): void {
+        if (typeof s === 'number') {
+            mat4.scale(this.transform, this.transform, [s, s, s])
+        } else {
+            mat4.scale(this.transform, this.transform, s);
         }
-        mat4.scale(this.transform, this.transform, [sx, sy, sz]);
     }
 }
 
