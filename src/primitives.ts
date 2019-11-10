@@ -173,18 +173,17 @@ export class Shape extends Affine {
 
 export class Cube extends Shape {
     static positionArray = new Float32Array([
-        0.5, 0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
+        0.5, 0.5, 0.5,    // 0 Top Right Front
+        -0.5, 0.5, 0.5,   // 1 Top Left  Front
+        0.5, -0.5, 0.5,   // 2 Bot Right Front
+        -0.5, -0.5, 0.5,  // 3 Bot Left  Front
+        0.5, 0.5, -0.5,   // 4 Top Right Back
+        -0.5, 0.5, -0.5,  // 5 Top Left  Back
+        0.5, -0.5, -0.5,  // 6 Bot Right Back
+        -0.5, -0.5, -0.5, // 7 Bot Left  Back
     ]);
-    // TODO: Fix winding. Swap first two elements?
     static indexArray = new Uint16Array([
-        1, 0, 3, 2, 6, 0, 4, 1, 5, 3, 7, 6, 5, 4
+        5, 4, 7, 6, 2, 4, 0, 5, 1, 7, 3, 2, 1, 0
     ]);
     static mode = WebGL2RenderingContext.TRIANGLE_STRIP;
 }
@@ -328,15 +327,4 @@ export class BigF extends Shape {
         return val / 300;
     });
     static indexArray = new Uint16Array(Array.from(Array(BigF.positionArray.length / 3).keys()));
-}
-
-export class BasicTriangle extends Shape {
-    static setGeometry(gl: WebGL2RenderingContext): void {
-        const positions = [
-            0, 0,
-            0, 1,
-            1, 0,
-        ];
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-    }
 }

@@ -2,7 +2,7 @@ import {Shape} from './primitives';
 import Camera from './camera';
 import {vec4} from 'gl-matrix';
 
-export default class RenderUtil {
+export default class RenderUtils {
     static drawFunction(
         camera: Camera,
         program: WebGLProgram,

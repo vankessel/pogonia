@@ -7,7 +7,7 @@ import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
 import Camera, {initStandardCameraController} from "../camera";
 import {vec4} from "gl-matrix";
 import {Cube, Skybox} from "../primitives";
-import RenderUtil from "../renderUtil";
+import RenderUtils from "../renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
 import skyboxTopSrc from "../../assets/skybox/top.jpg";
@@ -33,9 +33,9 @@ function generateBuildings(
     camera: Camera,
     program: WebGLProgram
 ): Drawer<Cube>[] {
-    const drawRoadFunc = RenderUtil.drawFunction(camera, program, LabelColors.ROAD);
-    const drawBuildingFunc = RenderUtil.drawFunction(camera, program, LabelColors.BUILDING);
-    const drawSidewalkFunc = RenderUtil.drawFunction(camera, program, LabelColors.SIDEWALK);
+    const drawRoadFunc = RenderUtils.drawFunction(camera, program, LabelColors.ROAD);
+    const drawBuildingFunc = RenderUtils.drawFunction(camera, program, LabelColors.BUILDING);
+    const drawSidewalkFunc = RenderUtils.drawFunction(camera, program, LabelColors.SIDEWALK);
 
     const buildingWidthD2 = buildingWidth / 2;
     const buildingSpacing = buildingWidth + spacing;
@@ -140,11 +140,11 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         mainProgram
     );
     const origin = new Cube();
-    const drawVegFunc = RenderUtil.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
+    const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
 
     // TODO: Remove skybox
     const skybox = new Skybox();
-    const skyboxDrawFunction = RenderUtil.drawSkyboxFunction(camera, skyboxProgram);
+    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
 
     const scene = new Scene(

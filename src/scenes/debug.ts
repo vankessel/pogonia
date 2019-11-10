@@ -9,7 +9,7 @@ import {InputState} from "../input";
 import {mat4} from "gl-matrix";
 import {World} from "../constants";
 import {BigF, Cube, Skybox} from "../primitives";
-import RenderUtil from "../renderUtil";
+import RenderUtils from "../renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
 import skyboxTopSrc from "../../assets/skybox/top.jpg";
@@ -72,7 +72,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const cube = new Cube();
     cube.scale(0.25);
-    const drawFunction = RenderUtil.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
+    const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
 
     const bigf = new BigF();
@@ -81,7 +81,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const bigfDrawer = new Drawer(bigf, drawFunction);
 
     const skybox = new Skybox();
-    const skyboxDrawFunction = RenderUtil.drawSkyboxFunction(camera, skyboxProgram);
+    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
     const scene = new Scene(
         camera,
