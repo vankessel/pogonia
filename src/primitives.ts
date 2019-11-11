@@ -142,7 +142,8 @@ export class Shape extends Affine {
     }
 
     static initVao(gl: WebGL2RenderingContext): void {
-        if (this.vao) {
+        // Return early if VAO has already been initialized for this class
+        if (Object.prototype.hasOwnProperty.call(this, 'vao')) {
             return;
         }
         this.vao = glu.createVao(gl);

@@ -117,6 +117,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const skyboxProgram = glu.createProgramFromSource(gl, skyboxVertexShaderSource, skyboxFrgmntShaderSource);
     // Go ahead and bind the first texture unit as that's where we'll bind the cubemap
     const skyboxLoc = gl.getUniformLocation(skyboxProgram, 'u_skybox');
+    gl.useProgram(skyboxProgram);
     gl.uniform1i(skyboxLoc, 0);
 
     const viewportInfo = glu.getViewportInfo(gl);
