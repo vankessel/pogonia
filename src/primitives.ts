@@ -1,14 +1,7 @@
 import {mat4, vec3} from 'gl-matrix';
-import * as glu from "./webglUtils";
-import {AttribLoc} from "./constants";
-
-interface AttribOptions {
-    size: GLint;
-    type: GLenum;
-    normalize: GLboolean;
-    stride: GLsizei;
-    offset: GLintptr;
-}
+import * as glu from "./utils/webglUtils";
+import {AttribLoc, AttribOptions} from "./utils/webglUtils";
+import {StaticConstructor} from "./utils/utils";
 
 interface Translatable {
     translate(dir: vec3 | number[]): void;
@@ -27,10 +20,11 @@ interface Scalable {
 }
 
 // All transformations with determinant = 1
-export class Rigid implements Translatable, Rotatable {
+export class Rigid extends StaticConstructor implements Translatable, Rotatable {
     transform: mat4;
 
     constructor() {
+        super();
         this.transform = mat4.create();
     }
 
@@ -122,12 +116,8 @@ export class Affine extends Rigid implements Scalable {
     }
 }
 
-export class Shape extends Affine {
+export abstract class Shape extends Affine {
     static vao: WebGLVertexArrayObject;
-    static indexBuffer: WebGLBuffer;
-    static indexArray: Uint16Array;
-    static positionBuffer: WebGLBuffer;
-    static positionArray: Float32Array;
     static mode = WebGL2RenderingContext.TRIANGLES;
     static attribOptions: AttribOptions = {
         size: 3,
@@ -136,6 +126,11 @@ export class Shape extends Affine {
         stride: 0,
         offset: 0
     };
+
+    static indexBuffer: WebGLBuffer;
+    static indexArray: Uint16Array;
+    static positionBuffer: WebGLBuffer;
+    static positionArray: Float32Array;
 
     constructor() {
         super();
@@ -173,6 +168,10 @@ export class Shape extends Affine {
 }
 
 export class Cube extends Shape {
+    static mode = WebGL2RenderingContext.TRIANGLE_STRIP;
+    static indexArray = new Uint16Array([
+        5, 4, 7, 6, 2, 4, 0, 5, 1, 7, 3, 2, 1, 0
+    ]);
     static positionArray = new Float32Array([
         0.5, 0.5, 0.5,    // 0 Top Right Front
         -0.5, 0.5, 0.5,   // 1 Top Left  Front
@@ -183,149 +182,47 @@ export class Cube extends Shape {
         0.5, -0.5, -0.5,  // 6 Bot Right Back
         -0.5, -0.5, -0.5, // 7 Bot Left  Back
     ]);
-    static indexArray = new Uint16Array([
-        5, 4, 7, 6, 2, 4, 0, 5, 1, 7, 3, 2, 1, 0
-    ]);
-    static mode = WebGL2RenderingContext.TRIANGLE_STRIP;
+    static normals: Float32Array;
+    static computeNormals(): Float32Array {
+
+        const edges = [];
+        for (let i = 1; i < this.indexArray.length; i++) {
+            const idx = this.indexArray[i];
+            const prevIdx = this.indexArray[i - 1];
+
+            edges.push(
+                vec3.subtract(
+                    vec3.create(),
+                    vec3.clone(Cube.positionArray.slice(idx * 3, (idx + 1) * 3)),
+                    vec3.clone(Cube.positionArray.slice(prevIdx * 3, (prevIdx + 1) * 3)),
+                ),
+            );
+        }
+
+        const normals: number[] = [];
+        for (let idx = 1; idx < edges.length; idx++) {
+            const parity = idx % 2;
+            if (parity === 1) {
+                normals.push(
+                    ...vec3.cross(vec3.create(), edges[idx-1], edges[idx])
+                );
+            } else {
+                normals.push(
+                    ...vec3.cross(vec3.create(), edges[idx], edges[idx-1])
+                );
+            }
+        }
+        return new Float32Array(normals);
+    }
+
+    protected static staticConstructor(): void {
+        this.normals = this.computeNormals();
+        console.log((this.normals));
+    }
 }
 
 export class Skybox extends Cube {
     static indexArray = new Uint16Array([
         1, 0, 3, 2, 6, 0, 4, 1, 5, 3, 7, 6, 5, 4
     ]);
-}
-
-export class BigF extends Shape {
-    static positionArray = new Float32Array([
-        // left column front
-        0, 0, 0,
-        0, 150, 0,
-        30, 0, 0,
-        0, 150, 0,
-        30, 150, 0,
-        30, 0, 0,
-
-        // top rung front
-        30, 0, 0,
-        30, 30, 0,
-        100, 0, 0,
-        30, 30, 0,
-        100, 30, 0,
-        100, 0, 0,
-
-        // middle rung front
-        30, 60, 0,
-        30, 90, 0,
-        67, 60, 0,
-        30, 90, 0,
-        67, 90, 0,
-        67, 60, 0,
-
-        // left column back
-        0, 0, 30,
-        30, 0, 30,
-        0, 150, 30,
-        0, 150, 30,
-        30, 0, 30,
-        30, 150, 30,
-
-        // top rung back
-        30, 0, 30,
-        100, 0, 30,
-        30, 30, 30,
-        30, 30, 30,
-        100, 0, 30,
-        100, 30, 30,
-
-        // middle rung back
-        30, 60, 30,
-        67, 60, 30,
-        30, 90, 30,
-        30, 90, 30,
-        67, 60, 30,
-        67, 90, 30,
-
-        // top
-        0, 0, 0,
-        100, 0, 0,
-        100, 0, 30,
-        0, 0, 0,
-        100, 0, 30,
-        0, 0, 30,
-
-        // top rung right
-        100, 0, 0,
-        100, 30, 0,
-        100, 30, 30,
-        100, 0, 0,
-        100, 30, 30,
-        100, 0, 30,
-
-        // under top rung
-        30, 30, 0,
-        30, 30, 30,
-        100, 30, 30,
-        30, 30, 0,
-        100, 30, 30,
-        100, 30, 0,
-
-        // between top rung and middle
-        30, 30, 0,
-        30, 60, 30,
-        30, 30, 30,
-        30, 30, 0,
-        30, 60, 0,
-        30, 60, 30,
-
-        // top of middle rung
-        30, 60, 0,
-        67, 60, 30,
-        30, 60, 30,
-        30, 60, 0,
-        67, 60, 0,
-        67, 60, 30,
-
-        // right of middle rung
-        67, 60, 0,
-        67, 90, 30,
-        67, 60, 30,
-        67, 60, 0,
-        67, 90, 0,
-        67, 90, 30,
-
-        // bottom of middle rung.
-        30, 90, 0,
-        30, 90, 30,
-        67, 90, 30,
-        30, 90, 0,
-        67, 90, 30,
-        67, 90, 0,
-
-        // right of bottom
-        30, 90, 0,
-        30, 150, 30,
-        30, 90, 30,
-        30, 90, 0,
-        30, 150, 0,
-        30, 150, 30,
-
-        // bottom
-        0, 150, 0,
-        0, 150, 30,
-        30, 150, 30,
-        0, 150, 0,
-        30, 150, 30,
-        30, 150, 0,
-
-        // left side
-        0, 0, 0,
-        0, 0, 30,
-        0, 150, 30,
-        0, 0, 0,
-        0, 150, 30,
-        0, 150, 0,
-    ]).map(function (val: number) {
-        return val / 300;
-    });
-    static indexArray = new Uint16Array(Array.from(Array(BigF.positionArray.length / 3).keys()));
 }

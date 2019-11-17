@@ -2,8 +2,8 @@ import {Rigid} from './primitives';
 import {mat4, vec3} from 'gl-matrix';
 import {Updater} from "./scene";
 import {InputState} from "./input";
-import {World} from "./constants";
-import {getViewportInfo} from "./webglUtils";
+import {World} from "./utils/constants";
+import {getViewportInfo} from "./utils/webglUtils";
 
 export default class Camera extends Rigid {
     readonly yFov: number;

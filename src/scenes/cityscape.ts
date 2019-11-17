@@ -1,5 +1,5 @@
 import Scene, {Drawer} from "../scene";
-import * as glu from "../webglUtils";
+import * as glu from "../utils/webglUtils";
 import vertexShaderSource from "../shaders/vertex.glsl";
 import frgmntShaderSource from "../shaders/frgmnt.glsl";
 import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
@@ -7,7 +7,7 @@ import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
 import Camera, {initStandardCameraController} from "../camera";
 import {vec4} from "gl-matrix";
 import {Cube, Skybox} from "../primitives";
-import RenderUtils from "../renderUtils";
+import RenderUtils from "../utils/renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
 import skyboxTopSrc from "../../assets/skybox/top.jpg";

@@ -1,5 +1,5 @@
-import {Shape} from './primitives';
-import Camera from './camera';
+import {Shape} from '../primitives';
+import Camera from '../camera';
 import {vec4} from 'gl-matrix';
 
 export default class RenderUtils {

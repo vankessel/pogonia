@@ -1,15 +1,15 @@
 import Scene, {Drawer, Updater} from "../scene";
-import * as glu from "../webglUtils";
+import * as glu from "../utils/webglUtils";
 import vertexShaderSource from "../shaders/vertex.glsl";
 import frgmntShaderSource from "../shaders/frgmnt.glsl";
 import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
 import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
-import Camera from "../camera";
+import Camera, {initStandardCameraController} from "../camera";
 import {InputState} from "../input";
 import {mat4} from "gl-matrix";
-import {World} from "../constants";
-import {BigF, Cube, Skybox} from "../primitives";
-import RenderUtils from "../renderUtils";
+import {World} from "../utils/constants";
+import {Cube, Skybox} from "../primitives";
+import RenderUtils from "../utils/renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
 import skyboxTopSrc from "../../assets/skybox/top.jpg";
@@ -35,50 +35,12 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         32
     );
     camera.translate([0, 0, 2]);
-    const cameraController = new Updater(camera, function (camera: Camera, deltaTime: number, input: InputState): void {
-        let cameraDeltaX = 0;
-        let cameraDeltaY = 0;
-        if (input.mouse.pressed && input.mouse.button === 0) {
-            cameraDeltaX = input.mouse.movement.x;
-            cameraDeltaY = input.mouse.movement.y;
-        }
-        camera.rotateX(-cameraDeltaY * deltaTime);
-        // Rotate camera at its position relative to world up axis
-        const tx = camera.transform[12];
-        const ty = camera.transform[13];
-        const tz = camera.transform[14];
-        camera.transform[12] = 0;
-        camera.transform[13] = 0;
-        camera.transform[14] = 0;
-        const rotMat = mat4.fromRotation(mat4.create(), -cameraDeltaX * deltaTime, World.UP);
-        mat4.multiply(camera.transform, rotMat, camera.transform);
-        camera.transform[12] = tx;
-        camera.transform[13] = ty;
-        camera.transform[14] = tz;
-
-        if (input.keys.w) {
-            camera.translate([0, 0, -deltaTime]);
-        }
-        if (input.keys.a) {
-            camera.translate([-deltaTime, 0, 0]);
-        }
-        if (input.keys.s) {
-            camera.translate([0, 0, deltaTime]);
-        }
-        if (input.keys.d) {
-            camera.translate([deltaTime, 0, 0]);
-        }
-    });
+    const cameraController = initStandardCameraController(gl, camera);
 
     const cube = new Cube();
     cube.scale(0.25);
     const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
-
-    const bigf = new BigF();
-    bigf.translate([1, 1, -0.5]);
-    bigf.rotateZ(Math.PI / 4);
-    const bigfDrawer = new Drawer(bigf, drawFunction);
 
     const skybox = new Skybox();
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
@@ -90,7 +52,6 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         ],
         [
             cubeDrawer,
-            bigfDrawer,
             skyboxDrawer
         ]
     );

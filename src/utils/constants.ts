@@ -1,9 +1,5 @@
 import {vec3} from "gl-matrix";
 
-export enum AttribLoc {
-    POSITION = 0,
-}
-
 /* TODO:
     Is it possible to make these immutable with Object.freeze(T)?
     That method returns Readonly<T> which breaks a lot of type checks.

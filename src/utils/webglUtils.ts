@@ -1,3 +1,15 @@
+export enum AttribLoc {
+    POSITION = 0,
+}
+
+export interface AttribOptions {
+    size: GLint;
+    type: GLenum;
+    normalize: GLboolean;
+    stride: GLsizei;
+    offset: GLintptr;
+}
+
 export function createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
     const vao = gl.createVertexArray();
     if (!vao) {

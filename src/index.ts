@@ -1,4 +1,4 @@
-import * as glu from './webglUtils';
+import * as glu from './utils/webglUtils';
 import Scene from './scene';
 import {initInputState, InputState} from './input';
 import initScene from "./scenes/cityscape";
