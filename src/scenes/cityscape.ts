@@ -6,7 +6,7 @@ import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
 import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
 import Camera, {initStandardCameraController} from "../camera";
 import {vec4} from "gl-matrix";
-import {Cube, Skybox} from "../primitives";
+import {Cube} from "../primitives";
 import RenderUtils from "../utils/renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
@@ -127,7 +127,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         0.1,
         128
     );
-    camera.translate([0, 4, 0]);
+    camera.translate([0, 8, 0]);
     camera.rotateX(-Math.PI / 4);
     const cameraController = initStandardCameraController(gl, camera);
 
@@ -144,7 +144,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
 
     // TODO: Remove skybox
-    const skybox = new Skybox();
+    const skybox = new Cube();
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
 

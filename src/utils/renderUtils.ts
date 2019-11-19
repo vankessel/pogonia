@@ -27,11 +27,10 @@ export default class RenderUtils {
             gl.uniform4fv(colorLoc, color);
 
             // Draw
-            gl.drawElements(
+            gl.drawArrays(
                 staticShape.mode,
-                staticShape.indexArray.length,
-                gl.UNSIGNED_SHORT,
-                0
+                0,
+                staticShape.positionData.length / 3
             );
         };
     }
@@ -55,11 +54,10 @@ export default class RenderUtils {
             gl.uniformMatrix4fv(skyboxViewToClipLoc, false, camera.projection);
 
             // Draw
-            gl.drawElements(
+            gl.drawArrays(
                 staticShape.mode,
-                staticShape.indexArray.length,
-                gl.UNSIGNED_SHORT,
-                0
+                0,
+                staticShape.positionData.length / 3
             );
             gl.depthMask(true);
         };

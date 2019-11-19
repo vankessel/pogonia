@@ -7,10 +7,13 @@ uniform mat4 u_viewToClip;
 
 out vec3 v_texCoord;
 
+mat4 negate = mat4(-1);
+
 void main()
 {
-    v_texCoord = a_position.xyz;
-
+    vec4 a_position = negate * a_position;
     vec4 clipSpace = u_viewToClip * u_worldToView * a_position;
+
+    v_texCoord = a_position.xyz;
     gl_Position = clipSpace.xyww;
 }

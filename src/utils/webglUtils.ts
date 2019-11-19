@@ -1,5 +1,6 @@
 export enum AttribLoc {
     POSITION = 0,
+    NORMAL = 1
 }
 
 export interface AttribOptions {

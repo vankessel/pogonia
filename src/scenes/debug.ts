@@ -1,14 +1,11 @@
-import Scene, {Drawer, Updater} from "../scene";
+import Scene, {Drawer} from "../scene";
 import * as glu from "../utils/webglUtils";
 import vertexShaderSource from "../shaders/vertex.glsl";
 import frgmntShaderSource from "../shaders/frgmnt.glsl";
 import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
 import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
 import Camera, {initStandardCameraController} from "../camera";
-import {InputState} from "../input";
-import {mat4} from "gl-matrix";
-import {World} from "../utils/constants";
-import {Cube, Skybox} from "../primitives";
+import {Cube} from "../primitives";
 import RenderUtils from "../utils/renderUtils";
 import skyboxRightSrc from "../../assets/skybox/right.jpg";
 import skyboxLeftSrc from "../../assets/skybox/left.jpg";
@@ -42,7 +39,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
 
-    const skybox = new Skybox();
+    const skybox = new Cube();
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
     const scene = new Scene(
