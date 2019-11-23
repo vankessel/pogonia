@@ -11,6 +11,28 @@ export interface AttribOptions {
     offset: GLintptr;
 }
 
+// This base class is meant to mimic Java's static constructor concept.
+// The static constructor is meant to be run once on the first object's initialization.
+// The `staticCopy` variable is to enable polymorphism. In other words, each subclass
+// should keep track if its static constructor has been called.
+export abstract class StaticConstructor {
+    protected static staticConstructorCalled = false;
+
+    protected constructor(gl: WebGL2RenderingContext) {
+        const staticCopy = this.constructor as typeof StaticConstructor;
+        if (!staticCopy.staticConstructorCalled) {
+            console.log("Calling static constructor for: " + staticCopy.name);
+            staticCopy.staticConstructor(gl);
+            staticCopy.staticConstructorCalled = true;
+        }
+    }
+
+    protected static staticConstructor(gl: WebGL2RenderingContext): void {
+        return;
+    }
+}
+
+
 export function createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
     const vao = gl.createVertexArray();
     if (!vao) {

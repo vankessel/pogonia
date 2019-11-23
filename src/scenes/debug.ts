@@ -26,6 +26,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const viewportInfo = glu.getViewportInfo(gl);
     const camera = new Camera(
+        gl,
         Math.PI / 2,
         viewportInfo.width / viewportInfo.height,
         0.1,
@@ -34,12 +35,12 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     camera.translate([0, 0, 2]);
     const cameraController = initStandardCameraController(gl, camera);
 
-    const cube = new Cube();
+    const cube = new Cube(gl);
     cube.scale(0.25);
     const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
 
-    const skybox = new Cube();
+    const skybox = new Cube(gl);
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
     const scene = new Scene(

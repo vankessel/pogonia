@@ -25,6 +25,7 @@ class LabelColors {
 }
 
 function generateBuildings(
+    gl: WebGL2RenderingContext,
     buildingWidth: number,
     buildingHeight: number,
     spacing: number,
@@ -47,7 +48,7 @@ function generateBuildings(
     const shapes = [];
 
     // Road
-    const roadPlane = new Cube();
+    const roadPlane = new Cube(gl);
     roadPlane.scale([fullWidth * 16, 1, fullHeight * 16]);
     roadPlane.translate([0, -0.5, 0]);
     shapes.push(new Drawer(roadPlane, drawRoadFunc));
@@ -57,7 +58,7 @@ function generateBuildings(
         for (let row = 0; row < numVert; row++) {
             pos.x = leftBound + buildingWidthD2 + col * buildingSpacing;
             pos.z = bottomBound + buildingWidthD2 + row * buildingSpacing;
-            const building = new Cube();
+            const building = new Cube(gl);
             building.translate([pos.x, buildingHeight / 2, pos.z]);
             building.scale([buildingWidth, buildingHeight, buildingWidth]);
             shapes.push(new Drawer(building, drawBuildingFunc));
@@ -77,28 +78,28 @@ function generateBuildings(
             // Pos x
             sx = pos.x + buildingWidthD2 + sidewalkWidthD2;
             sz = pos.z;
-            const sidewalkNorth = new Cube();
+            const sidewalkNorth = new Cube(gl);
             sidewalkNorth.translate([sx, sidewalkHeight / 2, sz]);
             sidewalkNorth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
             shapes.push(new Drawer(sidewalkNorth, drawSidewalkFunc));
             // Neg x
             sx = pos.x - buildingWidthD2 - sidewalkWidthD2;
             sz = pos.z;
-            const sidewalkSouth = new Cube();
+            const sidewalkSouth = new Cube(gl);
             sidewalkSouth.translate([sx, sidewalkHeight / 2, sz]);
             sidewalkSouth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
             shapes.push(new Drawer(sidewalkSouth, drawSidewalkFunc));
             // Pos z
             sx = pos.x;
             sz = pos.z + buildingWidthD2 + sidewalkWidthD2;
-            const sidewalkEast = new Cube();
+            const sidewalkEast = new Cube(gl);
             sidewalkEast.translate([sx, sidewalkHeight / 2, sz]);
             sidewalkEast.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
             shapes.push(new Drawer(sidewalkEast, drawSidewalkFunc));
             // Neg z
             sx = pos.x;
             sz = pos.z - buildingWidthD2 - sidewalkWidthD2;
-            const sidewalkWest = new Cube();
+            const sidewalkWest = new Cube(gl);
             sidewalkWest.translate([sx, sidewalkHeight / 2, sz]);
             sidewalkWest.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
             shapes.push(new Drawer(sidewalkWest, drawSidewalkFunc));
@@ -122,6 +123,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const viewportInfo = glu.getViewportInfo(gl);
     const camera = new Camera(
+        gl,
         Math.PI / 2,
         viewportInfo.width / viewportInfo.height,
         0.1,
@@ -132,6 +134,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const cameraController = initStandardCameraController(gl, camera);
 
     const buildings = generateBuildings(
+        gl,
         3,
         5,
         2,
@@ -140,11 +143,11 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         camera,
         mainProgram
     );
-    const origin = new Cube();
+    const origin = new Cube(gl);
     const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
 
     // TODO: Remove skybox
-    const skybox = new Cube();
+    const skybox = new Cube(gl);
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
 

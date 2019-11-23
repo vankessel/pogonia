@@ -10,7 +10,6 @@ export default class RenderUtils {
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
         return function(shape: Shape, gl: WebGL2RenderingContext): void {
             const staticShape = shape.constructor as typeof Shape;
-            staticShape.initVao(gl);
 
             gl.useProgram(program);
             gl.bindVertexArray(staticShape.vao);
@@ -42,7 +41,6 @@ export default class RenderUtils {
         return function(shape: Shape, gl: WebGL2RenderingContext): void {
             gl.depthMask(false);
             const staticShape = shape.constructor as typeof Shape;
-            staticShape.initVao(gl);
 
             gl.useProgram(program);
             gl.bindVertexArray(staticShape.vao);

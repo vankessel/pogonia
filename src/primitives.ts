@@ -1,7 +1,7 @@
 import {mat4, vec3} from 'gl-matrix';
 import * as glu from "./utils/webglUtils";
 import {AttribLoc, AttribOptions} from "./utils/webglUtils";
-import {StaticConstructor} from "./utils/utils";
+import {StaticConstructor} from "./utils/webglUtils";
 
 interface Translatable {
     translate(dir: vec3 | number[]): void;
@@ -23,8 +23,8 @@ interface Scalable {
 export class Rigid extends StaticConstructor implements Translatable, Rotatable {
     transform: mat4;
 
-    constructor() {
-        super();
+    constructor(gl: WebGL2RenderingContext) {
+        super(gl);
         this.transform = mat4.create();
     }
 
@@ -129,29 +129,20 @@ export abstract class Shape extends Affine {
 
     static positionData: Float32Array;
     static positionBuffer: WebGLBuffer;
-    // TODO: Add support for interpolated vertex normals
     static surfaceNormalData: Float32Array;
     static surfaceNormalBuffer: WebGLBuffer;
 
-    static staticConstructor(): void {
-        this.surfaceNormalData = this.computeSurfaceNormals();
+    constructor(gl: WebGL2RenderingContext) {
+        super(gl);
     }
 
-    constructor() {
-        super();
-    }
-
-    static initVao(gl: WebGL2RenderingContext): void {
-        // Return early if VAO has already been initialized for this class
-        if (Object.prototype.hasOwnProperty.call(this, 'vao')) {
-            return;
-        }
+    static staticConstructor(gl: WebGL2RenderingContext): void {
+        // VAO
         this.vao = glu.createVao(gl);
         gl.bindVertexArray(this.vao);
 
-        if (!this.positionBuffer) {
-            this.positionBuffer = glu.createBuffer(gl);
-        }
+        // Position attribute
+        this.positionBuffer = glu.createBuffer(gl);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.positionData, gl.STATIC_DRAW);
         gl.vertexAttribPointer(
@@ -164,12 +155,9 @@ export abstract class Shape extends Affine {
         );
         gl.enableVertexAttribArray(AttribLoc.POSITION);
 
-        if (!this.surfaceNormalBuffer) {
-            this.surfaceNormalBuffer = glu.createBuffer(gl);
-        }
-        if (!this.surfaceNormalData) {
-            this.surfaceNormalData = this.computeSurfaceNormals();
-        }
+        // Normal attribute
+        this.surfaceNormalBuffer = glu.createBuffer(gl);
+        this.surfaceNormalData = this.computeSurfaceNormals();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.surfaceNormalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.surfaceNormalData, gl.STATIC_DRAW);
         gl.vertexAttribPointer(

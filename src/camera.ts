@@ -16,8 +16,8 @@ export default class Camera extends Rigid {
     private transformMemoizedValue: mat4;
     private inverseTransformMemoizedValue: mat4;
 
-    constructor(yFov: number, aspect: number, near: number, far: number) {
-        super();
+    constructor(gl: WebGL2RenderingContext, yFov: number, aspect: number, near: number, far: number) {
+        super(gl);
         this.yFov = yFov;
         this.aspect = aspect;
         this.near = near;
