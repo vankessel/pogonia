@@ -1,27 +1,27 @@
-import Scene, {Drawer} from "../scene";
-import * as glu from "../utils/webglUtils";
-import vertexShaderSource from "../shaders/vertex.glsl";
-import frgmntShaderSource from "../shaders/frgmnt.glsl";
-import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
-import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
-import Camera, {initStandardCameraController} from "../camera";
-import {vec4} from "gl-matrix";
-import {Cube} from "../primitives";
-import RenderUtils from "../utils/renderUtils";
-import skyboxRightSrc from "../../assets/skybox/right.jpg";
-import skyboxLeftSrc from "../../assets/skybox/left.jpg";
-import skyboxTopSrc from "../../assets/skybox/top.jpg";
-import skyboxBottomSrc from "../../assets/skybox/bottom.jpg";
-import skyboxBackSrc from "../../assets/skybox/back.jpg";
-import skyboxFrontSrc from "../../assets/skybox/front.jpg";
+import { vec4 } from 'gl-matrix';
+import Scene, { Drawer } from '../scene';
+import * as glu from '../utils/webglUtils';
+import vertexShaderSource from '../shaders/vertex.glsl';
+import frgmntShaderSource from '../shaders/frgmnt.glsl';
+import skyboxVertexShaderSource from '../shaders/skybox/vertex.glsl';
+import skyboxFrgmntShaderSource from '../shaders/skybox/frgmnt.glsl';
+import Camera, { initStandardCameraController } from '../camera';
+import { Cube } from '../primitives';
+import RenderUtils from '../utils/renderUtils';
+import skyboxRightSrc from '../../assets/skybox/right.jpg';
+import skyboxLeftSrc from '../../assets/skybox/left.jpg';
+import skyboxTopSrc from '../../assets/skybox/top.jpg';
+import skyboxBottomSrc from '../../assets/skybox/bottom.jpg';
+import skyboxBackSrc from '../../assets/skybox/back.jpg';
+import skyboxFrontSrc from '../../assets/skybox/front.jpg';
 
 class LabelColors {
-    static readonly ROAD = vec4.clone([128, 64, 128, 255].map(val => val / 255));
-    static readonly SIDEWALK = vec4.clone([244, 35, 232, 255].map(val => val / 255));
-    static readonly BUILDING = vec4.clone([70, 70, 70, 255].map(val => val / 255));
-    static readonly CAR = vec4.clone([0, 0, 142, 255].map(val => val / 255));
-    static readonly VEGETATION = vec4.clone([107, 142, 35, 255].map(val => val / 255));
-    static readonly SKY = vec4.clone([70, 130, 180, 255].map(val => val / 255));
+    static readonly ROAD = vec4.clone([128, 64, 128, 255].map((val) => val / 255));
+    static readonly SIDEWALK = vec4.clone([244, 35, 232, 255].map((val) => val / 255));
+    static readonly BUILDING = vec4.clone([70, 70, 70, 255].map((val) => val / 255));
+    static readonly CAR = vec4.clone([0, 0, 142, 255].map((val) => val / 255));
+    static readonly VEGETATION = vec4.clone([107, 142, 35, 255].map((val) => val / 255));
+    static readonly SKY = vec4.clone([70, 130, 180, 255].map((val) => val / 255));
 }
 
 function generateBuildings(
@@ -32,7 +32,7 @@ function generateBuildings(
     numHor: number,
     numVert: number,
     camera: Camera,
-    program: WebGLProgram
+    program: WebGLProgram,
 ): Drawer<Cube>[] {
     const drawRoadFunc = RenderUtils.drawFunction(camera, program, LabelColors.ROAD);
     const drawBuildingFunc = RenderUtils.drawFunction(camera, program, LabelColors.BUILDING);
@@ -40,7 +40,7 @@ function generateBuildings(
 
     const buildingWidthD2 = buildingWidth / 2;
     const buildingSpacing = buildingWidth + spacing;
-    const pos = {x: 0, z: 0};
+    const pos = { x: 0, z: 0 };
     const fullWidth = buildingSpacing * numHor - spacing;
     const fullHeight = buildingSpacing * numVert - spacing;
     const leftBound = -fullWidth / 2;
@@ -74,7 +74,8 @@ function generateBuildings(
         for (let row = 0; row < numVert; row++) {
             pos.x = leftBound + buildingWidthD2 + col * buildingSpacing;
             pos.z = bottomBound + buildingWidthD2 + row * buildingSpacing;
-            let sx, sz;
+            let sx; let
+                sz;
             // Pos x
             sx = pos.x + buildingWidthD2 + sidewalkWidthD2;
             sz = pos.z;
@@ -127,7 +128,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         Math.PI / 2,
         viewportInfo.width / viewportInfo.height,
         0.1,
-        128
+        128,
     );
     camera.translate([0, 8, 0]);
     camera.rotateX(-Math.PI / 4);
@@ -141,7 +142,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         8,
         8,
         camera,
-        mainProgram
+        mainProgram,
     );
     const origin = new Cube(gl);
     const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
@@ -154,13 +155,13 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const scene = new Scene(
         camera,
         [
-            cameraController
+            cameraController,
         ],
         [
             new Drawer(origin, drawVegFunc),
             ...buildings,
-            skyboxDrawer
-        ]
+            skyboxDrawer,
+        ],
     );
 
     // SKYBOX
@@ -187,37 +188,37 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const skyboxRight = new Image();
     skyboxRight.src = skyboxRightSrc;
-    skyboxRight.addEventListener('load', function () {
+    skyboxRight.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxRight);
     });
     const skyboxLeft = new Image();
     skyboxLeft.src = skyboxLeftSrc;
-    skyboxLeft.addEventListener('load', function () {
+    skyboxLeft.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxLeft);
     });
     const skyboxTop = new Image();
     skyboxTop.src = skyboxTopSrc;
-    skyboxTop.addEventListener('load', function () {
+    skyboxTop.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxTop);
     });
     const skyboxBottom = new Image();
     skyboxBottom.src = skyboxBottomSrc;
-    skyboxBottom.addEventListener('load', function () {
+    skyboxBottom.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBottom);
     });
     const skyboxBack = new Image();
     skyboxBack.src = skyboxBackSrc;
-    skyboxBack.addEventListener('load', function () {
+    skyboxBack.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBack);
     });
     const skyboxFront = new Image();
     skyboxFront.src = skyboxFrontSrc;
-    skyboxFront.addEventListener('load', function () {
+    skyboxFront.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxFront);
     });

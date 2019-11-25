@@ -1,5 +1,5 @@
 import Camera from './camera';
-import {InputState} from "./input";
+import { InputState } from './input';
 
 export interface Updatable {
     update(deltaTime: number, input: InputState): void;
@@ -45,7 +45,7 @@ export default class Scene {
     constructor(
         camera: Camera,
         updatables: Updatable[] = [],
-        drawables: Drawable[] = []
+        drawables: Drawable[] = [],
     ) {
         this.camera = camera;
         this.updatables = updatables;

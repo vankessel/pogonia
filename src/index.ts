@@ -1,10 +1,10 @@
 import * as glu from './utils/webglUtils';
 import Scene from './scene';
-import {initInputState, InputState} from './input';
-import initScene from "./scenes/cityscape";
+import { initInputState, InputState } from './input';
+import initScene from './scenes/cityscape';
 
 function update(deltaTime: number, input: InputState, scene: Scene): void {
-
+    // eslint-disable-next-line no-restricted-syntax
     for (const updatable of scene.updatables) {
         updatable.update(deltaTime, input);
     }
@@ -46,9 +46,9 @@ function main(): void {
 
     // Set up resizing
     glu.resizeCanvas(gl);
-    new window.ResizeObserver(function (): void {
+    new window.ResizeObserver(((): void => {
         glu.resizeCanvas(gl);
-    }).observe(canvas);
+    })).observe(canvas);
 
     // Enable culling and depth testing
     gl.enable(gl.CULL_FACE);
@@ -61,6 +61,6 @@ function main(): void {
     startRenderLoop(gl, scene, inputState);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
     main();
 });

@@ -22,25 +22,24 @@ export interface InputState {
 }
 
 export function initInputState(canvas: HTMLCanvasElement): InputState {
-
     const input: InputState = {
         mouse: {
             pressed: false,
             button: 0,
             buttons: 0,
-            lastPosition: {x: 0, y: 0},
-            position: {x: 0, y: 0},
-            movement: {x: 0, y: 0},
+            lastPosition: { x: 0, y: 0 },
+            position: { x: 0, y: 0 },
+            movement: { x: 0, y: 0 },
         },
         keys: {
             w: false,
             a: false,
             s: false,
             d: false,
-        }
+        },
     };
 
-    canvas.addEventListener('mousedown', function (event) {
+    canvas.addEventListener('mousedown', (event) => {
         input.mouse.pressed = true;
         input.mouse.button = event.button;
         input.mouse.buttons = event.buttons;
@@ -48,7 +47,7 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
         input.mouse.position.y = event.offsetY;
     });
 
-    canvas.addEventListener('mouseup', function (event) {
+    canvas.addEventListener('mouseup', (event) => {
         input.mouse.pressed = false;
         input.mouse.button = event.button;
         input.mouse.buttons = event.buttons;
@@ -56,20 +55,20 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
         input.mouse.position.y = event.offsetY;
     });
 
-    canvas.addEventListener('mousemove', function (event) {
+    canvas.addEventListener('mousemove', (event) => {
         input.mouse.position.x = event.offsetX;
         input.mouse.position.y = event.offsetY;
     });
 
-    canvas.addEventListener('mouseenter', function () {
+    canvas.addEventListener('mouseenter', () => {
         canvas.focus();
     });
 
-    canvas.addEventListener('keydown', function (event) {
+    canvas.addEventListener('keydown', (event) => {
         input.keys[event.key] = true;
     });
 
-    canvas.addEventListener('keyup', function (event) {
+    canvas.addEventListener('keyup', (event) => {
         input.keys[event.key] = false;
     });
 

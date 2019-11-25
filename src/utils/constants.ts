@@ -1,4 +1,4 @@
-import {vec3} from "gl-matrix";
+import { vec3 } from 'gl-matrix';
 
 /* TODO:
     Is it possible to make these immutable with Object.freeze(T)?
@@ -12,3 +12,5 @@ export class World {
     static readonly FORWARD: vec3 = vec3.clone([0, 0, 1]);
     static readonly BACKWARD: vec3 = vec3.clone([0, 0, -1]);
 }
+
+export const GRAVITY = 9.81;

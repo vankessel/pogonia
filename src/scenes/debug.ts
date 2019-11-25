@@ -1,18 +1,18 @@
-import Scene, {Drawer} from "../scene";
-import * as glu from "../utils/webglUtils";
-import vertexShaderSource from "../shaders/vertex.glsl";
-import frgmntShaderSource from "../shaders/frgmnt.glsl";
-import skyboxVertexShaderSource from "../shaders/skybox/vertex.glsl";
-import skyboxFrgmntShaderSource from "../shaders/skybox/frgmnt.glsl";
-import Camera, {initStandardCameraController} from "../camera";
-import {Cube} from "../primitives";
-import RenderUtils from "../utils/renderUtils";
-import skyboxRightSrc from "../../assets/skybox/right.jpg";
-import skyboxLeftSrc from "../../assets/skybox/left.jpg";
-import skyboxTopSrc from "../../assets/skybox/top.jpg";
-import skyboxBottomSrc from "../../assets/skybox/bottom.jpg";
-import skyboxBackSrc from "../../assets/skybox/back.jpg";
-import skyboxFrontSrc from "../../assets/skybox/front.jpg";
+import Scene, { Drawer } from '../scene';
+import * as glu from '../utils/webglUtils';
+import vertexShaderSource from '../shaders/vertex.glsl';
+import frgmntShaderSource from '../shaders/frgmnt.glsl';
+import skyboxVertexShaderSource from '../shaders/skybox/vertex.glsl';
+import skyboxFrgmntShaderSource from '../shaders/skybox/frgmnt.glsl';
+import Camera, { initStandardCameraController } from '../camera';
+import { Cube } from '../primitives';
+import RenderUtils from '../utils/renderUtils';
+import skyboxRightSrc from '../../assets/skybox/right.jpg';
+import skyboxLeftSrc from '../../assets/skybox/left.jpg';
+import skyboxTopSrc from '../../assets/skybox/top.jpg';
+import skyboxBottomSrc from '../../assets/skybox/bottom.jpg';
+import skyboxBackSrc from '../../assets/skybox/back.jpg';
+import skyboxFrontSrc from '../../assets/skybox/front.jpg';
 
 export default function initScene(gl: WebGL2RenderingContext): Scene {
     // Create program
@@ -30,7 +30,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         Math.PI / 2,
         viewportInfo.width / viewportInfo.height,
         0.1,
-        32
+        32,
     );
     camera.translate([0, 0, 2]);
     const cameraController = initStandardCameraController(gl, camera);
@@ -46,12 +46,12 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const scene = new Scene(
         camera,
         [
-            cameraController
+            cameraController,
         ],
         [
             cubeDrawer,
-            skyboxDrawer
-        ]
+            skyboxDrawer,
+        ],
     );
 
     // SKYBOX
@@ -78,37 +78,37 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const skyboxRight = new Image();
     skyboxRight.src = skyboxRightSrc;
-    skyboxRight.addEventListener('load', function () {
+    skyboxRight.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxRight);
     });
     const skyboxLeft = new Image();
     skyboxLeft.src = skyboxLeftSrc;
-    skyboxLeft.addEventListener('load', function () {
+    skyboxLeft.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxLeft);
     });
     const skyboxTop = new Image();
     skyboxTop.src = skyboxTopSrc;
-    skyboxTop.addEventListener('load', function () {
+    skyboxTop.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxTop);
     });
     const skyboxBottom = new Image();
     skyboxBottom.src = skyboxBottomSrc;
-    skyboxBottom.addEventListener('load', function () {
+    skyboxBottom.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBottom);
     });
     const skyboxBack = new Image();
     skyboxBack.src = skyboxBackSrc;
-    skyboxBack.addEventListener('load', function () {
+    skyboxBack.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxBack);
     });
     const skyboxFront = new Image();
     skyboxFront.src = skyboxFrontSrc;
-    skyboxFront.addEventListener('load', function () {
+    skyboxFront.addEventListener('load', () => {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTexture);
         gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxFront);
     });

@@ -1,6 +1,6 @@
-import {Shape} from '../primitives';
+import { vec4 } from 'gl-matrix';
+import { Shape } from '../primitives';
 import Camera from '../camera';
-import {vec4} from 'gl-matrix';
 
 export default class RenderUtils {
     static drawFunction(
@@ -8,7 +8,7 @@ export default class RenderUtils {
         program: WebGLProgram,
         color: vec4 | number[],
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return function(shape: Shape, gl: WebGL2RenderingContext): void {
+        return function (shape: Shape, gl: WebGL2RenderingContext): void {
             const staticShape = shape.constructor as typeof Shape;
 
             gl.useProgram(program);
@@ -29,16 +29,16 @@ export default class RenderUtils {
             gl.drawArrays(
                 staticShape.mode,
                 0,
-                staticShape.positionData.length / 3
+                staticShape.positionData.length / 3,
             );
         };
     }
 
     static drawSkyboxFunction(
         camera: Camera,
-        program: WebGLProgram
+        program: WebGLProgram,
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return function(shape: Shape, gl: WebGL2RenderingContext): void {
+        return (shape: Shape, gl: WebGL2RenderingContext): void => {
             gl.depthMask(false);
             const staticShape = shape.constructor as typeof Shape;
 
@@ -55,7 +55,7 @@ export default class RenderUtils {
             gl.drawArrays(
                 staticShape.mode,
                 0,
-                staticShape.positionData.length / 3
+                staticShape.positionData.length / 3,
             );
             gl.depthMask(true);
         };

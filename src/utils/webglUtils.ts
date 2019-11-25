@@ -21,22 +21,28 @@ export abstract class StaticConstructor {
     protected constructor(gl: WebGL2RenderingContext) {
         const staticCopy = this.constructor as typeof StaticConstructor;
         if (!staticCopy.staticConstructorCalled) {
-            console.log("Calling static constructor for: " + staticCopy.name);
+            console.log(`Calling static constructor for: ${staticCopy.name}`);
             staticCopy.staticConstructor(gl);
             staticCopy.staticConstructorCalled = true;
         }
     }
 
-    protected static staticConstructor(gl: WebGL2RenderingContext): void {
-        return;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
+    protected static staticConstructor(gl: WebGL2RenderingContext): void {}
 }
 
+export function getContext(canvas: HTMLCanvasElement): WebGL2RenderingContext {
+    const gl = canvas.getContext('webgl2');
+    if (!gl) {
+        throw new Error('Could not create context.');
+    }
+    return gl;
+}
 
 export function createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
     const vao = gl.createVertexArray();
     if (!vao) {
-        throw "Could not create vertex array object.";
+        throw new Error('Could not create vertex array object.');
     }
     return vao;
 }
@@ -44,7 +50,7 @@ export function createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
 export function createBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
     const buffer = gl.createBuffer();
     if (!buffer) {
-        throw "Could not create positionBuffer.";
+        throw new Error('Could not create positionBuffer.');
     }
     return buffer;
 }
@@ -52,7 +58,7 @@ export function createBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
 export function createTexture(gl: WebGL2RenderingContext): WebGLTexture {
     const texture = gl.createTexture();
     if (!texture) {
-        throw "Could not create texture.";
+        throw new Error('Could not create texture.');
     }
     return texture;
 }
@@ -60,7 +66,7 @@ export function createTexture(gl: WebGL2RenderingContext): WebGLTexture {
 export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: string): WebGLShader {
     const shader = gl.createShader(type);
     if (!shader) {
-        throw "Could not create shader.";
+        throw new Error('Could not create shader.');
     }
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -68,15 +74,19 @@ export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: s
     if (!success) {
         console.log(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
-        throw "Could not create shader.";
+        throw new Error('Could not create shader.');
     }
     return shader;
 }
 
-export function createProgramFromShaders(gl: WebGL2RenderingContext, vertexShader: WebGLShader, frgmntShader: WebGLShader): WebGLProgram {
+export function createProgramFromShaders(
+    gl: WebGL2RenderingContext,
+    vertexShader: WebGLShader,
+    frgmntShader: WebGLShader,
+): WebGLProgram {
     const program = gl.createProgram();
     if (!program) {
-        throw "Could not create program.";
+        throw new Error('Could not create program.');
     }
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, frgmntShader);
@@ -85,17 +95,21 @@ export function createProgramFromShaders(gl: WebGL2RenderingContext, vertexShade
     if (!success) {
         console.log(gl.getProgramInfoLog(program));
         gl.deleteProgram(program);
-        throw "Could not create program.";
+        throw new Error('Could not create program.');
     }
     return program;
 }
 
-export function createProgramFromSource(gl: WebGL2RenderingContext, vertexShaderSource: string, frgmntShaderSource: string): WebGLProgram {
+export function createProgramFromSource(
+    gl: WebGL2RenderingContext,
+    vertexShaderSource: string,
+    frgmntShaderSource: string,
+): WebGLProgram {
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const frgmntShader = createShader(gl, gl.FRAGMENT_SHADER, frgmntShaderSource);
     const program = gl.createProgram();
     if (!program) {
-        throw "Could not create program.";
+        throw new Error('Could not create program.');
     }
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, frgmntShader);
@@ -104,7 +118,7 @@ export function createProgramFromSource(gl: WebGL2RenderingContext, vertexShader
     if (!success) {
         console.log(gl.getProgramInfoLog(program));
         gl.deleteProgram(program);
-        throw "Could not link program.";
+        throw new Error('Could not link program.');
     }
     return program;
 }
@@ -130,7 +144,7 @@ export function getViewportInfo(gl: WebGL2RenderingContext): ViewportInfo {
             top: viewportParams[3],
         },
         width: viewportParams[2] - viewportParams[0],
-        height: viewportParams[3] - viewportParams[1]
+        height: viewportParams[3] - viewportParams[1],
     };
 }
 
@@ -139,20 +153,11 @@ export function resizeCanvas(gl: WebGL2RenderingContext): void {
     const canvas = gl.canvas as HTMLCanvasElement;
 
     // Check if the canvas is not the same size.
-    if (canvas.width !== canvas.clientWidth ||
-        canvas.height !== canvas.clientHeight) {
-
+    if (canvas.width !== canvas.clientWidth
+        || canvas.height !== canvas.clientHeight) {
         // Make the canvas the same size
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
-}
-
-export function getContext(canvas: HTMLCanvasElement): WebGL2RenderingContext {
-    const gl = canvas.getContext('webgl2');
-    if (!gl) {
-        throw "Could not create context.";
-    }
-    return gl;
 }
