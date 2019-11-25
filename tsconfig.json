@@ -1,13 +1,15 @@
 {
-  "compilerOptions": {
-    "module": "es6",
-    "target": "es5",
-    "outDir": "./dist/",
-    "allowJs": true,
-    "alwaysStrict": true,
-    "noImplicitAny": true,
-    "strict": true,
-    "sourceMap": true,
-    "downlevelIteration": true
-  }
+    "compilerOptions": {
+        "module": "es6",
+        "target": "es5",
+        "outDir": "./build",
+        "strict": true,
+        "declaration": true,
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*",
+        "types/**/*",
+        "assets/**/*"
+    ]
 }

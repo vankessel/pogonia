@@ -1,9 +1,11 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "node": true
     },
     "extends": [
+        "airbnb-base",
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
@@ -13,15 +15,48 @@
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module",
-        "project": "./tsconfig.json"
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+            "ecmaVersion": 2018,
+            "sourceType": "module",
+            "project": "./tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"
     ],
     "rules": {
-    }
+        "indent": [ "error", 4 ],
+        "max-len": [ "error", { "code": 120 } ],
+        "lines-between-class-members": [ "error", "always", { "exceptAfterSingleLine": true } ],
+        "no-restricted-syntax": [ "error", "ForInStatement", "LabeledStatement", "WithStatement" ],
+        "no-plusplus": [ "error", { "allowForLoopAfterthoughts": true } ],
+        "no-multi-spaces": [ "error", { "ignoreEOLComments": true } ],
+        "no-mixed-operators": "off",
+        "no-param-reassign": "off",
+        "no-bitwise": "off",
+        "max-classes-per-file": "off",
+        "@typescript-eslint/explicit-function-return-type": [ "error", { "allowHigherOrderFunctions": false } ],
+        "camelcase": "off",
+        "@typescript-eslint/camelcase": [ "error", { "properties": "always" } ],
+        "@typescript-eslint/ban-types": [
+            "error",
+            {
+                "types": {
+                    "WebGLRenderingContext": {
+                        "message": "Use WebGL2RenderingContext instead",
+                        "fixWith": "WebGL2RenderingContext"
+                    },
+                    "WebGLRenderingContextBase": {
+                        "message": "Use WebGL2RenderingContextBase instead",
+                        "fixWith": "WebGL2RenderingContextBase"
+                    },
+                    "WebGLRenderingContextOverloads": {
+                        "message": "Use WebGL2RenderingContextOverloads instead",
+                        "fixWith": "WebGL2RenderingContextOverloads"
+                    }
+                }
+            }
+        ]
+    },
+    "settings": { "import/resolver": "webpack" }
 }
