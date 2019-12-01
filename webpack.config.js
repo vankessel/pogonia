@@ -1,11 +1,12 @@
 const path = require('path');
-const entry_path = path.resolve(__dirname, 'src', 'index.ts');
-const output_path = path.resolve(__dirname, 'dist');
-const node_modules_path = path.resolve(__dirname, 'node_modules');
+
+// Make sure devServer.publicPath always starts and ends with a forward slash.
+const publicPath = '/build/';
+const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 
 module.exports = {
-    mode: 'production',
-    entry: entry_path,
+    mode: 'development',
+    entry: path.resolve(__dirname, 'src', 'index.ts'),
     resolve: {
         extensions: ['.ts', '.js'],
     },
@@ -14,31 +15,31 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'ts-loader',
-                exclude: node_modules_path,
+                exclude: nodeModulesPath,
             },
             {
                 test: /\.glsl$/,
                 loader: 'raw-loader',
-                exclude: node_modules_path,
+                exclude: nodeModulesPath,
             },
             {
                 test: /\.(jpg|png)$/,
                 loader: 'file-loader',
-                exclude: node_modules_path,
+                exclude: nodeModulesPath,
                 options: {
                     name: '[path][name].[ext]',
-                    publicPath: output_path,
+                    publicPath: publicPath,
                 },
             },
         ],
     },
     output: {
-        path: output_path,
+        path: path.resolve(__dirname, publicPath),
         filename: 'bundle.js',
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     devServer: {
         contentBase: __dirname,
-        publicPath: output_path,
+        publicPath: publicPath,
     },
 };
