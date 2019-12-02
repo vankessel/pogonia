@@ -27,8 +27,10 @@ export abstract class StaticConstructor {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
-    protected static staticConstructor(gl: WebGL2RenderingContext): void {}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected static staticConstructor(gl: WebGL2RenderingContext): void {
+        throw new Error('staticConstructor not implemented.');
+    }
 }
 
 export function getContext(canvas: HTMLCanvasElement): WebGL2RenderingContext {

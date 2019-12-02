@@ -1,8 +1,8 @@
-import { mat4, vec3 } from 'gl-matrix';
+import { Vec3, Mat4 } from 'gl-transform';
 import * as glu from './utils/webglUtils';
 
 interface Translatable {
-    translate(dir: vec3 | number[]): void;
+    translate(dir: Vec3 | number[]): void;
 }
 
 interface Rotatable {
@@ -19,96 +19,96 @@ interface Scalable {
 
 // All transformations with determinant = 1
 export class Rigid extends glu.StaticConstructor implements Translatable, Rotatable {
-    transform: mat4;
+    transform: Mat4;
 
     constructor(gl: WebGL2RenderingContext) {
         super(gl);
-        this.transform = mat4.create();
+        this.transform = new Mat4();
     }
 
-    getInverseTransform(): mat4 {
-        const inverseTransform = mat4.invert(mat4.create(), this.transform);
+    getInverseTransform(): Mat4 {
+        const inverseTransform = Mat4.invert(new Mat4(), this.transform);
         if (!inverseTransform) {
             throw new Error("Can't invert transform.");
         }
         return inverseTransform;
     }
 
-    getRight(): vec3 {
-        return vec3.clone([
+    getRight(): Vec3 {
+        return Vec3.from([
             this.transform[0],
             this.transform[1],
             this.transform[2],
         ]);
     }
 
-    getLeft(): vec3 {
-        return vec3.clone([
+    getLeft(): Vec3 {
+        return Vec3.from([
             -this.transform[0],
             -this.transform[1],
             -this.transform[2],
         ]);
     }
 
-    getUp(): vec3 {
-        return vec3.clone([
+    getUp(): Vec3 {
+        return Vec3.from([
             this.transform[4],
             this.transform[5],
             this.transform[6],
         ]);
     }
 
-    getDown(): vec3 {
-        return vec3.clone([
+    getDown(): Vec3 {
+        return Vec3.from([
             -this.transform[4],
             -this.transform[5],
             -this.transform[6],
         ]);
     }
 
-    getForward(): vec3 {
-        return vec3.clone([
+    getForward(): Vec3 {
+        return Vec3.from([
             this.transform[8],
             this.transform[9],
             this.transform[10],
         ]);
     }
 
-    getBackward(): vec3 {
-        return vec3.clone([
+    getBackward(): Vec3 {
+        return Vec3.from([
             -this.transform[8],
             -this.transform[9],
             -this.transform[10],
         ]);
     }
 
-    translate(dir: vec3 | number[]): void {
-        mat4.translate(this.transform, this.transform, dir);
+    translate(dir: Vec3 | number[]): void {
+        Mat4.translate(this.transform, this.transform, dir);
     }
 
     rotateX(radians: number): void {
-        mat4.rotateX(this.transform, this.transform, radians);
+        Mat4.rotateX(this.transform, this.transform, radians);
     }
 
     rotateY(radians: number): void {
-        mat4.rotateY(this.transform, this.transform, radians);
+        Mat4.rotateY(this.transform, this.transform, radians);
     }
 
     rotateZ(radians: number): void {
-        mat4.rotateZ(this.transform, this.transform, radians);
+        Mat4.rotateZ(this.transform, this.transform, radians);
     }
 
-    rotateAxis(radians: number, axis: vec3 | number[]): void {
-        mat4.rotate(this.transform, this.transform, radians, axis);
+    rotateAxis(radians: number, axis: Vec3 | number[]): void {
+        Mat4.rotate(this.transform, this.transform, radians, axis);
     }
 }
 
 export class Affine extends Rigid implements Scalable {
-    scale(s: number | number[] | vec3): void {
+    scale(s: number | number[] | Vec3): void {
         if (typeof s === 'number') {
-            mat4.scale(this.transform, this.transform, [s, s, s]);
+            Mat4.scale(this.transform, this.transform, [s, s, s]);
         } else {
-            mat4.scale(this.transform, this.transform, s);
+            Mat4.scale(this.transform, this.transform, s);
         }
     }
 }
@@ -169,14 +169,14 @@ export abstract class Shape extends Affine {
     static computeSurfaceNormals(): Float32Array {
         const normals = new Float32Array(this.positionData.length);
         for (let idx = 0; idx < this.positionData.length; idx += 9) {
-            const first = vec3.clone(Array.from(this.positionData.slice(idx, idx + 3)));
-            const second = vec3.clone(Array.from(this.positionData.slice(idx + 3, idx + 6)));
-            const third = vec3.clone(Array.from(this.positionData.slice(idx + 6, idx + 9)));
+            const first = Vec3.clone(this.positionData.slice(idx, idx + 3));
+            const second = Vec3.clone(this.positionData.slice(idx + 3, idx + 6));
+            const third = Vec3.clone(this.positionData.slice(idx + 6, idx + 9));
 
-            const a = vec3.subtract(vec3.create(), second, first);
-            const b = vec3.subtract(vec3.create(), third, first);
+            const a = Vec3.subtract(second, first);
+            const b = Vec3.subtract(third, first);
 
-            const normal = vec3.normalize(vec3.create(), vec3.cross(vec3.create(), a, b));
+            const normal = Vec3.normalize(Vec3.cross(new Vec3(), a, b));
             normals.set(normal, idx);
             normals.set(normal, idx + 3);
             normals.set(normal, idx + 6);
