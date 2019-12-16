@@ -192,6 +192,18 @@ export abstract class Shape extends Affine {
     }
 }
 
+export class Quad extends Shape {
+    static positionData = new Float32Array([
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0,
+        -1.0, -1.0, 0.0,
+
+        1.0, 1.0, 0.0,
+        -1.0, -1.0, 0.0,
+        1.0, -1.0, 0.0,
+    ]);
+}
+
 export class Cube extends Shape {
     static positionData = new Float32Array([
         // Front 1/2

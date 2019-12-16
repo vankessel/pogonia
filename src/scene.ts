@@ -41,14 +41,23 @@ export default class Scene {
     camera: Camera;
     updatables: Updatable[];
     drawables: Drawable[];
+    quad: Drawable | null;
+    fb1: WebGLFramebuffer | null;
+    fb2: WebGLFramebuffer | null;
 
     constructor(
         camera: Camera,
         updatables: Updatable[] = [],
         drawables: Drawable[] = [],
+        quad: Drawable | null = null,
+        fb1: WebGLFramebuffer | null = null,
+        fb2: WebGLFramebuffer | null = null,
     ) {
         this.camera = camera;
         this.updatables = updatables;
         this.drawables = drawables;
+        this.quad = quad;
+        this.fb1 = fb1;
+        this.fb2 = fb2;
     }
 }

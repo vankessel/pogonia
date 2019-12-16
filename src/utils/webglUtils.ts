@@ -65,6 +65,14 @@ export function createTexture(gl: WebGL2RenderingContext): WebGLTexture {
     return texture;
 }
 
+export function createFramebuffer(gl: WebGL2RenderingContext): WebGLFramebuffer {
+    const framebuffer = gl.createFramebuffer();
+    if (!framebuffer) {
+        throw new Error('Could not create framebuffer.');
+    }
+    return framebuffer;
+}
+
 export function createShader(gl: WebGL2RenderingContext, type: GLenum, source: string): WebGLShader {
     const shader = gl.createShader(type);
     if (!shader) {
@@ -155,11 +163,11 @@ export function resizeCanvas(gl: WebGL2RenderingContext): void {
     const canvas = gl.canvas as HTMLCanvasElement;
 
     // Check if the canvas is not the same size.
-    if (canvas.width !== canvas.clientWidth
-        || canvas.height !== canvas.clientHeight) {
+    if (canvas.width !== canvas.clientWidth / 2
+        || canvas.height !== canvas.clientHeight / 2) {
         // Make the canvas the same size
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+        canvas.width = canvas.clientWidth / 2;
+        canvas.height = canvas.clientHeight / 2;
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
 }

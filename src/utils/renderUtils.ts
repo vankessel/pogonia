@@ -1,4 +1,4 @@
-import { Vec4 } from 'gl-transform';
+import { Mat4, Vec4 } from 'gl-transform';
 import { Shape } from '../primitives';
 import Camera from '../camera';
 
@@ -8,7 +8,7 @@ export default class RenderUtils {
         program: WebGLProgram,
         color: Vec4 | number[],
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return function (shape: Shape, gl: WebGL2RenderingContext): void {
+        return (shape: Shape, gl: WebGL2RenderingContext): void => {
             const staticShape = shape.constructor as typeof Shape;
 
             gl.useProgram(program);
@@ -24,6 +24,24 @@ export default class RenderUtils {
 
             const colorLoc = gl.getUniformLocation(program, 'u_color');
             gl.uniform4fv(colorLoc, color);
+
+            // Draw
+            gl.drawArrays(
+                staticShape.mode,
+                0,
+                staticShape.positionData.length / 3,
+            );
+        };
+    }
+
+    static drawQuadFunction(
+        program: WebGLProgram,
+    ): (shape: Shape, gl: WebGL2RenderingContext) => void {
+        return (shape: Shape, gl: WebGL2RenderingContext): void => {
+            const staticShape = shape.constructor as typeof Shape;
+
+            gl.useProgram(program);
+            gl.bindVertexArray(staticShape.vao);
 
             // Draw
             gl.drawArrays(

@@ -5,8 +5,10 @@ import vertexShaderSource from '../shaders/vertex.glsl';
 import frgmntShaderSource from '../shaders/frgmnt.glsl';
 import skyboxVertexShaderSource from '../shaders/skybox/vertex.glsl';
 import skyboxFrgmntShaderSource from '../shaders/skybox/frgmnt.glsl';
+import postVertexShaderSource from '../shaders/post/vertex.glsl';
+import postFrgmntShaderSource from '../shaders/post/frgmnt.glsl';
 import Camera, { initStandardCameraController } from '../camera';
-import { Cube } from '../primitives';
+import { Cube, Quad } from '../primitives';
 import RenderUtils from '../utils/renderUtils';
 import skyboxRightSrc from '../../assets/skybox/right.jpg';
 import skyboxLeftSrc from '../../assets/skybox/left.jpg';
@@ -130,8 +132,8 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         0.1,
         128,
     );
-    camera.translate(0, 8, 0);
     camera.rotateX(-Math.PI / 4);
+    camera.translate(0, 8, 0);
     const cameraController = initStandardCameraController(gl, camera);
 
     const buildings = generateBuildings(
@@ -144,8 +146,20 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         camera,
         mainProgram,
     );
+
+    const postProgram = glu.createProgramFromSource(gl, postVertexShaderSource, postFrgmntShaderSource);
+    const postTexLoc = gl.getUniformLocation(postProgram, 'u_tex');
+    gl.useProgram(postProgram);
+    gl.uniform1i(postTexLoc, 0);
+
+    // This quad will be used to display post processing
+    const renderQuad = new Quad(gl);
+    const drawClipFunc = RenderUtils.drawQuadFunction(postProgram);
+    const quadDrawer = new Drawer(renderQuad, drawClipFunc);
+
     const origin = new Cube(gl);
     const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
+
 
     // TODO: Remove skybox
     const skybox = new Cube(gl);
@@ -162,7 +176,75 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
             ...buildings,
             skyboxDrawer,
         ],
+        quadDrawer,
     );
+
+
+    const fb = glu.createFramebuffer(gl);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    scene.fb1 = fb;
+
+    const level = 0;
+    const targetTextureWidth = 256;
+    const targetTextureHeight = 256;
+
+    // SET UP DEPTH TEXTURE
+    const depthTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, depthTexture);
+    // make a depth buffer and the same size as the targetTexture
+    {
+        const internalFormat = gl.DEPTH_COMPONENT24;
+        const border = 0;
+        const format = gl.DEPTH_COMPONENT;
+        const type = gl.UNSIGNED_INT;
+        const data = null;
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+            targetTextureWidth, targetTextureHeight, border,
+            format, type, data);
+
+        // set the filtering so we don't need mips
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+
+        // attach the depth texture to the framebuffer
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, level);
+    }
+
+    // SET UP TARGET TEXTURE
+    const targetTexture = glu.createTexture(gl);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, targetTexture);
+    {
+        const internalFormat = gl.RGBA;
+        const border = 0;
+        const format = gl.RGBA;
+        const type = gl.UNSIGNED_BYTE;
+        const data = null;
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            level,
+            internalFormat,
+            targetTextureWidth,
+            targetTextureHeight,
+            border,
+            format,
+            type,
+            data,
+        );
+
+        // set the filtering so we don't need mips
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, level);
+    }
+
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     // SKYBOX
     const skyboxTexture = glu.createTexture(gl);
