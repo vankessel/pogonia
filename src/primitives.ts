@@ -2,10 +2,12 @@ import { Vec3, Mat4 } from 'gl-transform';
 import * as glu from './utils/webglUtils';
 
 interface Translatable {
-    translate(dir: Vec3 | number[]): void;
+    translate(x: number, y: number, z: number): void;
 }
 
 interface Rotatable {
+    rotate(radians: number, axis: Vec3): void;
+
     rotateX(radians: number): void;
 
     rotateY(radians: number): void;
@@ -14,7 +16,9 @@ interface Rotatable {
 }
 
 interface Scalable {
-    scale(sx: number, sy?: number, sz?: number): void;
+    scale(x: number, y: number, z: number): void;
+
+    scaleUniform(s: number): void;
 }
 
 // All transformations with determinant = 1
@@ -26,8 +30,11 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         this.transform = new Mat4();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-useless-return
+    static staticConstructor(gl: WebGL2RenderingContext): void { return; }
+
     getInverseTransform(): Mat4 {
-        const inverseTransform = Mat4.invert(new Mat4(), this.transform);
+        const inverseTransform = Mat4.invert(this.transform);
         if (!inverseTransform) {
             throw new Error("Can't invert transform.");
         }
@@ -35,81 +42,81 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
     }
 
     getRight(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             this.transform[0],
             this.transform[1],
             this.transform[2],
-        ]);
+        );
     }
 
     getLeft(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             -this.transform[0],
             -this.transform[1],
             -this.transform[2],
-        ]);
+        );
     }
 
     getUp(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             this.transform[4],
             this.transform[5],
             this.transform[6],
-        ]);
+        );
     }
 
     getDown(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             -this.transform[4],
             -this.transform[5],
             -this.transform[6],
-        ]);
+        );
     }
 
     getForward(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             this.transform[8],
             this.transform[9],
             this.transform[10],
-        ]);
+        );
     }
 
     getBackward(): Vec3 {
-        return Vec3.from([
+        return Vec3.fromValues(
             -this.transform[8],
             -this.transform[9],
             -this.transform[10],
-        ]);
+        );
     }
 
-    translate(dir: Vec3 | number[]): void {
-        Mat4.translate(this.transform, this.transform, dir);
+    translate(x: number, y: number, z: number): void {
+        Mat4.translate(this.transform, x, y, z, this.transform);
     }
 
     rotateX(radians: number): void {
-        Mat4.rotateX(this.transform, this.transform, radians);
+        Mat4.rotateX(this.transform, radians, this.transform);
     }
 
     rotateY(radians: number): void {
-        Mat4.rotateY(this.transform, this.transform, radians);
+        Mat4.rotateY(this.transform, radians, this.transform);
     }
 
     rotateZ(radians: number): void {
-        Mat4.rotateZ(this.transform, this.transform, radians);
+        Mat4.rotateZ(this.transform, radians, this.transform);
     }
 
-    rotateAxis(radians: number, axis: Vec3 | number[]): void {
-        Mat4.rotate(this.transform, this.transform, radians, axis);
+    rotate(radians: number, axis: Vec3): void {
+        Mat4.rotate(this.transform, radians, axis, this.transform);
     }
 }
 
 export class Affine extends Rigid implements Scalable {
-    scale(s: number | number[] | Vec3): void {
-        if (typeof s === 'number') {
-            Mat4.scale(this.transform, this.transform, [s, s, s]);
-        } else {
-            Mat4.scale(this.transform, this.transform, s);
-        }
+    scale(x: number, y: number, z: number): void {
+        Mat4.scale(this.transform, x, y, z, this.transform);
+    }
+
+    scaleUniform(s: number): void {
+        this.scale(s, s, s);
     }
 }
 
@@ -176,7 +183,7 @@ export abstract class Shape extends Affine {
             const a = Vec3.subtract(second, first);
             const b = Vec3.subtract(third, first);
 
-            const normal = Vec3.normalize(Vec3.cross(new Vec3(), a, b));
+            const normal = Vec3.normalize(Vec3.cross(a, b));
             normals.set(normal, idx);
             normals.set(normal, idx + 3);
             normals.set(normal, idx + 6);

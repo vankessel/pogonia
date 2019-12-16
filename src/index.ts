@@ -4,7 +4,9 @@ import { initInputState, InputState } from './input';
 import initScene from './scenes/cityscape';
 
 function update(deltaTime: number, input: InputState, scene: Scene): void {
-    // eslint-disable-next-line no-restricted-syntax
+    // if (input.mouse.movement.x !== 0 || input.mouse.movement.y !== 0) {
+    //     console.log(input.mouse);
+    // }
     for (const updatable of scene.updatables) {
         updatable.update(deltaTime, input);
     }

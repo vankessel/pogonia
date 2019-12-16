@@ -1,4 +1,4 @@
-import { vec4 } from 'gl-matrix';
+import { Vec4 } from 'gl-transform';
 import { Shape } from '../primitives';
 import Camera from '../camera';
 
@@ -6,7 +6,7 @@ export default class RenderUtils {
     static drawFunction(
         camera: Camera,
         program: WebGLProgram,
-        color: vec4 | number[],
+        color: Vec4 | number[],
     ): (shape: Shape, gl: WebGL2RenderingContext) => void {
         return function (shape: Shape, gl: WebGL2RenderingContext): void {
             const staticShape = shape.constructor as typeof Shape;

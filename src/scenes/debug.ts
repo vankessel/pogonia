@@ -32,11 +32,11 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         0.1,
         32,
     );
-    camera.translate([0, 0, 2]);
+    camera.translate(0, 0, 2);
     const cameraController = initStandardCameraController(gl, camera);
 
     const cube = new Cube(gl);
-    cube.scale(0.25);
+    cube.scaleUniform(0.25);
     const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
 

@@ -1,4 +1,4 @@
-import { mat4, vec3 } from 'gl-matrix';
+import { Mat4, Vec3 } from 'gl-transform';
 import { Rigid } from './primitives';
 import { Updater } from './scene';
 import { InputState } from './input';
@@ -6,40 +6,44 @@ import { World } from './utils/constants';
 import { getViewportInfo } from './utils/webglUtils';
 
 export default class Camera extends Rigid {
-    readonly yFov: number;
+    readonly xFov: number;
     readonly aspect: number;
     readonly near: number;
     readonly far: number;
 
-    projection: mat4;
+    projection: Mat4;
 
-    private transformMemoizedValue: mat4;
-    private inverseTransformMemoizedValue: mat4;
+    private transformMemoizedValue: Mat4;
+    private inverseTransformMemoizedValue: Mat4;
 
-    constructor(gl: WebGL2RenderingContext, yFov: number, aspect: number, near: number, far: number) {
+    constructor(gl: WebGL2RenderingContext, xFov: number, aspect: number, near: number, far: number) {
         super(gl);
-        this.yFov = yFov;
+        this.xFov = xFov;
         this.aspect = aspect;
         this.near = near;
         this.far = far;
-        this.projection = mat4.perspective(mat4.create(), yFov, aspect, near, far);
-        this.transformMemoizedValue = mat4.clone(this.transform);
+        this.projection = Mat4.perspectiveMatrix(xFov, aspect, near, far);
+        this.transformMemoizedValue = Mat4.clone(this.transform);
         this.inverseTransformMemoizedValue = this.getInverseTransform();
     }
 
-    getDirection(): vec3 {
+    getDirection(): Vec3 {
         return this.getBackward();
     }
 
-    getWorldToView(): mat4 {
-        if (!mat4.exactEquals(this.transform, this.transformMemoizedValue)) {
-            this.transformMemoizedValue = mat4.clone(this.transform);
+    getWorldToView(): Mat4 {
+        if (!Mat4.equals(this.transform, this.transformMemoizedValue)) {
+            this.transformMemoizedValue = Mat4.clone(this.transform);
             this.inverseTransformMemoizedValue = this.getInverseTransform();
+            // console.log();
+            // console.log(this.transform[0].toFixed(3) + ' ' + this.transform[4].toFixed(3) + ' ' + this.transform[8].toFixed(3));
+            // console.log(this.transform[1].toFixed(3) + ' ' + this.transform[5].toFixed(3) + ' ' + this.transform[9].toFixed(3));
+            // console.log(this.transform[2].toFixed(3) + ' ' + this.transform[6].toFixed(3) + ' ' + this.transform[10].toPrecision(3));
         }
-        return mat4.clone(this.inverseTransformMemoizedValue);
+        return Mat4.clone(this.inverseTransformMemoizedValue);
     }
 
-    getSkyboxWorldToView(): mat4 {
+    getSkyboxWorldToView(): Mat4 {
         const untranslated = this.getWorldToView();
         untranslated[12] = 0;
         untranslated[13] = 0;
@@ -50,41 +54,39 @@ export default class Camera extends Rigid {
 
 export function initStandardCameraController(gl: WebGL2RenderingContext, camera: Camera): Updater<Camera> {
     const viewportInfo = getViewportInfo(gl);
-    const xFovPerPixel = camera.yFov * camera.aspect / viewportInfo.width;
-    const yFovPerPixel = camera.yFov / viewportInfo.height;
+    const xFovPerPixel = camera.xFov / viewportInfo.width;
+    const yFovPerPixel = camera.xFov / (camera.aspect * viewportInfo.height);
+    const sensitivity = 2;
     return new Updater(camera, ((cameraToUpdate: Camera, deltaTime: number, input: InputState): void => {
         let cameraDeltaX = 0;
         let cameraDeltaY = 0;
         if (input.mouse.pressed && input.mouse.button === 0) {
-            cameraDeltaX = input.mouse.movement.x * xFovPerPixel;
-            cameraDeltaY = input.mouse.movement.y * yFovPerPixel;
+            cameraDeltaX = input.mouse.movement.x * xFovPerPixel * sensitivity;
+            cameraDeltaY = input.mouse.movement.y * yFovPerPixel * sensitivity;
         }
-        const sensitivity = 2;
-        cameraToUpdate.rotateX(-cameraDeltaY * sensitivity);
-        // Rotate camera at its position relative to world up axis
         const tx = cameraToUpdate.transform[12];
         const ty = cameraToUpdate.transform[13];
         const tz = cameraToUpdate.transform[14];
         cameraToUpdate.transform[12] = 0;
         cameraToUpdate.transform[13] = 0;
         cameraToUpdate.transform[14] = 0;
-        const rotMat = mat4.fromRotation(mat4.create(), -cameraDeltaX * sensitivity, World.UP);
-        mat4.multiply(cameraToUpdate.transform, rotMat, cameraToUpdate.transform);
+        cameraToUpdate.rotate(-cameraDeltaY, cameraToUpdate.getRight());
+        cameraToUpdate.rotate(-cameraDeltaX, World.UP);
         cameraToUpdate.transform[12] = tx;
         cameraToUpdate.transform[13] = ty;
         cameraToUpdate.transform[14] = tz;
 
         if (input.keys.w) {
-            cameraToUpdate.translate([0, 0, -deltaTime]);
+            cameraToUpdate.translate(0, 0, -deltaTime);
         }
         if (input.keys.a) {
-            cameraToUpdate.translate([-deltaTime, 0, 0]);
+            cameraToUpdate.translate(-deltaTime, 0, 0);
         }
         if (input.keys.s) {
-            cameraToUpdate.translate([0, 0, deltaTime]);
+            cameraToUpdate.translate(0, 0, deltaTime);
         }
         if (input.keys.d) {
-            cameraToUpdate.translate([deltaTime, 0, 0]);
+            cameraToUpdate.translate(deltaTime, 0, 0);
         }
     }));
 }

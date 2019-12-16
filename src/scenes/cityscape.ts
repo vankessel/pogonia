@@ -1,4 +1,4 @@
-import { vec4 } from 'gl-matrix';
+import { Vec4 } from 'gl-transform';
 import Scene, { Drawer } from '../scene';
 import * as glu from '../utils/webglUtils';
 import vertexShaderSource from '../shaders/vertex.glsl';
@@ -16,12 +16,12 @@ import skyboxBackSrc from '../../assets/skybox/back.jpg';
 import skyboxFrontSrc from '../../assets/skybox/front.jpg';
 
 class LabelColors {
-    static readonly ROAD = vec4.clone([128, 64, 128, 255].map((val) => val / 255));
-    static readonly SIDEWALK = vec4.clone([244, 35, 232, 255].map((val) => val / 255));
-    static readonly BUILDING = vec4.clone([70, 70, 70, 255].map((val) => val / 255));
-    static readonly CAR = vec4.clone([0, 0, 142, 255].map((val) => val / 255));
-    static readonly VEGETATION = vec4.clone([107, 142, 35, 255].map((val) => val / 255));
-    static readonly SKY = vec4.clone([70, 130, 180, 255].map((val) => val / 255));
+    static readonly ROAD = Vec4.from([128, 64, 128, 255].map((val) => val / 255));
+    static readonly SIDEWALK = Vec4.from([244, 35, 232, 255].map((val) => val / 255));
+    static readonly BUILDING = Vec4.from([70, 70, 70, 255].map((val) => val / 255));
+    static readonly CAR = Vec4.from([0, 0, 142, 255].map((val) => val / 255));
+    static readonly VEGETATION = Vec4.from([107, 142, 35, 255].map((val) => val / 255));
+    static readonly SKY = Vec4.from([70, 130, 180, 255].map((val) => val / 255));
 }
 
 function generateBuildings(
@@ -49,8 +49,8 @@ function generateBuildings(
 
     // Road
     const roadPlane = new Cube(gl);
-    roadPlane.scale([fullWidth * 16, 1, fullHeight * 16]);
-    roadPlane.translate([0, -0.5, 0]);
+    roadPlane.scale(fullWidth * 16, 1, fullHeight * 16);
+    roadPlane.translate(0, -0.5, 0);
     shapes.push(new Drawer(roadPlane, drawRoadFunc));
 
     // Buildings
@@ -59,8 +59,8 @@ function generateBuildings(
             pos.x = leftBound + buildingWidthD2 + col * buildingSpacing;
             pos.z = bottomBound + buildingWidthD2 + row * buildingSpacing;
             const building = new Cube(gl);
-            building.translate([pos.x, buildingHeight / 2, pos.z]);
-            building.scale([buildingWidth, buildingHeight, buildingWidth]);
+            building.translate(pos.x, buildingHeight / 2, pos.z);
+            building.scale(buildingWidth, buildingHeight, buildingWidth);
             shapes.push(new Drawer(building, drawBuildingFunc));
         }
     }
@@ -80,29 +80,29 @@ function generateBuildings(
             sx = pos.x + buildingWidthD2 + sidewalkWidthD2;
             sz = pos.z;
             const sidewalkNorth = new Cube(gl);
-            sidewalkNorth.translate([sx, sidewalkHeight / 2, sz]);
-            sidewalkNorth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
+            sidewalkNorth.translate(sx, sidewalkHeight / 2, sz);
+            sidewalkNorth.scale(sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2);
             shapes.push(new Drawer(sidewalkNorth, drawSidewalkFunc));
             // Neg x
             sx = pos.x - buildingWidthD2 - sidewalkWidthD2;
             sz = pos.z;
             const sidewalkSouth = new Cube(gl);
-            sidewalkSouth.translate([sx, sidewalkHeight / 2, sz]);
-            sidewalkSouth.scale([sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2]);
+            sidewalkSouth.translate(sx, sidewalkHeight / 2, sz);
+            sidewalkSouth.scale(sidewalkWidth, sidewalkHeight, buildingWidth + sidewalkWidthM2);
             shapes.push(new Drawer(sidewalkSouth, drawSidewalkFunc));
             // Pos z
             sx = pos.x;
             sz = pos.z + buildingWidthD2 + sidewalkWidthD2;
             const sidewalkEast = new Cube(gl);
-            sidewalkEast.translate([sx, sidewalkHeight / 2, sz]);
-            sidewalkEast.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
+            sidewalkEast.translate(sx, sidewalkHeight / 2, sz);
+            sidewalkEast.scale(buildingWidth, sidewalkHeight, sidewalkWidth);
             shapes.push(new Drawer(sidewalkEast, drawSidewalkFunc));
             // Neg z
             sx = pos.x;
             sz = pos.z - buildingWidthD2 - sidewalkWidthD2;
             const sidewalkWest = new Cube(gl);
-            sidewalkWest.translate([sx, sidewalkHeight / 2, sz]);
-            sidewalkWest.scale([buildingWidth, sidewalkHeight, sidewalkWidth]);
+            sidewalkWest.translate(sx, sidewalkHeight / 2, sz);
+            sidewalkWest.scale(buildingWidth, sidewalkHeight, sidewalkWidth);
             shapes.push(new Drawer(sidewalkWest, drawSidewalkFunc));
         }
     }
@@ -130,7 +130,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
         0.1,
         128,
     );
-    camera.translate([0, 8, 0]);
+    camera.translate(0, 8, 0);
     camera.rotateX(-Math.PI / 4);
     const cameraController = initStandardCameraController(gl, camera);
 
