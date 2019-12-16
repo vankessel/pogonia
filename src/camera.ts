@@ -35,10 +35,6 @@ export default class Camera extends Rigid {
         if (!Mat4.equals(this.transform, this.transformMemoizedValue)) {
             this.transformMemoizedValue = Mat4.clone(this.transform);
             this.inverseTransformMemoizedValue = this.getInverseTransform();
-            // console.log();
-            // console.log(this.transform[0].toFixed(3) + ' ' + this.transform[4].toFixed(3) + ' ' + this.transform[8].toFixed(3));
-            // console.log(this.transform[1].toFixed(3) + ' ' + this.transform[5].toFixed(3) + ' ' + this.transform[9].toFixed(3));
-            // console.log(this.transform[2].toFixed(3) + ' ' + this.transform[6].toFixed(3) + ' ' + this.transform[10].toPrecision(3));
         }
         return Mat4.clone(this.inverseTransformMemoizedValue);
     }
@@ -57,7 +53,7 @@ export function initStandardCameraController(gl: WebGL2RenderingContext, camera:
     const xFovPerPixel = camera.xFov / viewportInfo.width;
     const yFovPerPixel = camera.xFov / (camera.aspect * viewportInfo.height);
     const sensitivity = 2;
-    return new Updater(camera, ((cameraToUpdate: Camera, deltaTime: number, input: InputState): void => {
+    return new Updater(camera, (cameraToUpdate: Camera, deltaTime: number, input: InputState): void => {
         let cameraDeltaX = 0;
         let cameraDeltaY = 0;
         if (input.mouse.pressed && input.mouse.button === 0) {
@@ -88,5 +84,5 @@ export function initStandardCameraController(gl: WebGL2RenderingContext, camera:
         if (input.keys.d) {
             cameraToUpdate.translate(deltaTime, 0, 0);
         }
-    }));
+    });
 }
