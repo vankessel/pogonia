@@ -1,5 +1,5 @@
 {
-    "name": "pogodia",
+    "name": "pogonia",
     "version": "0.0.0",
     "description": "A powerful and elegant WebGL game engine.",
     "main": "./dist/index.js",
