@@ -251,10 +251,10 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, kernelTexture);
     {
-        const internalFormat = gl.RGB;
+        const internalFormat = gl.RGBA32F;
         const border = 0;
-        const format = gl.RGB;
-        const type = gl.UNSIGNED_BYTE;
+        const format = gl.RGBA;
+        const type = gl.FLOAT;
         gl.texImage3D(
             gl.TEXTURE_2D_ARRAY,
             level,
@@ -268,11 +268,10 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
             kernelData,
         );
 
-        // set the filtering so we don't need mips
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
