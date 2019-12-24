@@ -49,8 +49,13 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
             cameraController,
         ],
         [
-            cubeDrawer,
-            skyboxDrawer,
+            {
+                framebuffer: null,
+                drawables: [
+                    cubeDrawer,
+                    skyboxDrawer,
+                ],
+            },
         ],
     );
 

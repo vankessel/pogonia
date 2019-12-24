@@ -9,6 +9,13 @@ in vec2 v_texCoord;
 uniform sampler2D u_tex;
 uniform sampler2DArray u_kernel;
 uniform int u_features;
+// TODO: u_features is redundant if we go with uniform arrays due to constant size.
+//       Could possibly generate the shader code at runtime to allow variable feature size.
+// TODO: Implement batch normalization
+//uniform float weight[64];
+//uniform float bias[64];
+//uniform float sd[64];
+//uniform float mean[64];
 
 out vec4 o_color;
 

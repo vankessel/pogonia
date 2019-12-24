@@ -169,23 +169,32 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
 
+    const fb = glu.createFramebuffer(gl);
+
     const scene = new Scene(
         camera,
         [
             cameraController,
         ],
         [
-            new Drawer(origin, drawVegFunc),
-            ...buildings,
-            skyboxDrawer,
+            {
+                framebuffer: fb,
+                drawables: [
+                    new Drawer(origin, drawVegFunc),
+                    ...buildings,
+                    skyboxDrawer,
+                ],
+            },
+            {
+                framebuffer: null,
+                drawables: [
+                    quadDrawer,
+                ],
+            },
         ],
-        quadDrawer,
     );
 
-
-    const fb = glu.createFramebuffer(gl);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    scene.fb1 = fb;
 
     const level = 0;
     const targetTextureWidth = 256;

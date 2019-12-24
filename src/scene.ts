@@ -9,6 +9,11 @@ export interface Drawable {
     draw(gl: WebGL2RenderingContext): void;
 }
 
+export interface Renderable {
+    framebuffer: WebGLFramebuffer | null;
+    drawables: Drawable[];
+}
+
 export class Updater<T> implements Updatable {
     target: T;
     updateFunction: (target: T, deltaTime: number, input: InputState) => void;
@@ -40,24 +45,15 @@ export class Drawer<T> implements Drawable {
 export default class Scene {
     camera: Camera;
     updatables: Updatable[];
-    drawables: Drawable[];
-    quad: Drawable | null;
-    fb1: WebGLFramebuffer | null;
-    fb2: WebGLFramebuffer | null;
+    renderables: Renderable[];
 
     constructor(
         camera: Camera,
-        updatables: Updatable[] = [],
-        drawables: Drawable[] = [],
-        quad: Drawable | null = null,
-        fb1: WebGLFramebuffer | null = null,
-        fb2: WebGLFramebuffer | null = null,
+        updatables: Updatable[],
+        renderables: Renderable[],
     ) {
         this.camera = camera;
         this.updatables = updatables;
-        this.drawables = drawables;
-        this.quad = quad;
-        this.fb1 = fb1;
-        this.fb2 = fb2;
+        this.renderables = renderables;
     }
 }

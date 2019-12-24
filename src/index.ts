@@ -10,19 +10,13 @@ function update(deltaTime: number, input: InputState, scene: Scene): void {
 }
 
 function draw(deltaTime: number, gl: WebGL2RenderingContext, scene: Scene): void {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, scene.fb1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    for (const drawable of scene.drawables) {
-        drawable.draw(gl);
+    for (const renderable of scene.renderables) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, renderable.framebuffer);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        for (const drawable of renderable.drawables) {
+            drawable.draw(gl);
+        }
     }
-
-    // Draw from texture to canvas using shader post processing
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (!scene.quad) {
-        throw new Error('No quad');
-    }
-    scene.quad.draw(gl);
 }
 
 function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: InputState): void {
