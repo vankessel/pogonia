@@ -1,4 +1,4 @@
-import { Mat4, Vec4 } from 'gl-transform';
+import { Vec4 } from 'gl-transform';
 import { Shape } from '../primitives';
 import Camera from '../camera';
 
@@ -7,8 +7,8 @@ export default class RenderUtils {
         camera: Camera,
         program: WebGLProgram,
         color: Vec4 | number[],
-    ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return (shape: Shape, gl: WebGL2RenderingContext): void => {
+    ): (gl: WebGL2RenderingContext, shape: Shape) => void {
+        return (gl: WebGL2RenderingContext, shape: Shape): void => {
             const staticShape = shape.constructor as typeof Shape;
 
             gl.useProgram(program);
@@ -36,8 +36,8 @@ export default class RenderUtils {
 
     static drawQuadFunction(
         program: WebGLProgram,
-    ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return (shape: Shape, gl: WebGL2RenderingContext): void => {
+    ): (gl: WebGL2RenderingContext, shape: Shape) => void {
+        return (gl: WebGL2RenderingContext, shape: Shape): void => {
             const staticShape = shape.constructor as typeof Shape;
 
             gl.useProgram(program);
@@ -53,29 +53,32 @@ export default class RenderUtils {
     }
 
     static drawSkyboxFunction(
+        gl: WebGL2RenderingContext,
         camera: Camera,
         program: WebGLProgram,
-    ): (shape: Shape, gl: WebGL2RenderingContext) => void {
-        return (shape: Shape, gl: WebGL2RenderingContext): void => {
-            gl.depthMask(false);
+    ): (gl: WebGL2RenderingContext, shape: Shape) => void {
+        // TODO: Should gl.useProgram be called before? Doesn't seem like it.
+        const skyboxWorldToViewLoc = gl.getUniformLocation(program, 'u_worldToView');
+        const skyboxViewToClipLoc = gl.getUniformLocation(program, 'u_viewToClip');
+
+        return (gl_: WebGL2RenderingContext, shape: Shape): void => {
+            gl_.depthMask(false);
             const staticShape = shape.constructor as typeof Shape;
 
-            gl.useProgram(program);
-            gl.bindVertexArray(staticShape.vao);
+            gl_.useProgram(program);
+            gl_.bindVertexArray(staticShape.vao);
 
             // Uniforms
-            const skyboxWorldToViewLoc = gl.getUniformLocation(program, 'u_worldToView');
-            const skyboxViewToClipLoc = gl.getUniformLocation(program, 'u_viewToClip');
-            gl.uniformMatrix4fv(skyboxWorldToViewLoc, false, camera.getSkyboxWorldToView());
-            gl.uniformMatrix4fv(skyboxViewToClipLoc, false, camera.projection);
+            gl_.uniformMatrix4fv(skyboxWorldToViewLoc, false, camera.getSkyboxWorldToView());
+            gl_.uniformMatrix4fv(skyboxViewToClipLoc, false, camera.projection);
 
             // Draw
-            gl.drawArrays(
+            gl_.drawArrays(
                 staticShape.mode,
                 0,
                 staticShape.positionData.length / 3,
             );
-            gl.depthMask(true);
+            gl_.depthMask(true);
         };
     }
 }

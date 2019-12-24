@@ -41,7 +41,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const cubeDrawer = new Drawer(cube, drawFunction);
 
     const skybox = new Cube(gl);
-    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
+    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(gl, camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
     const scene = new Scene(
         camera,

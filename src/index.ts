@@ -3,13 +3,13 @@ import Scene from './scene';
 import { initInputState, InputState } from './input';
 import initScene from './scenes/cityscape';
 
-function update(deltaTime: number, input: InputState, scene: Scene): void {
+function update(deltaTime: number, scene: Scene, input: InputState): void {
     for (const updatable of scene.updatables) {
         updatable.update(deltaTime, input);
     }
 }
 
-function draw(deltaTime: number, gl: WebGL2RenderingContext, scene: Scene): void {
+function draw(gl: WebGL2RenderingContext, deltaTime: number, scene: Scene): void {
     for (const renderable of scene.renderables) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, renderable.framebuffer);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -27,8 +27,8 @@ function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: I
 
         inputState.mouse.movement.x = inputState.mouse.position.x - inputState.mouse.lastPosition.x;
         inputState.mouse.movement.y = inputState.mouse.position.y - inputState.mouse.lastPosition.y;
-        update(deltaTime, inputState, scene);
-        draw(deltaTime, gl, scene);
+        update(deltaTime, scene, inputState);
+        draw(gl, deltaTime, scene);
         inputState.mouse.lastPosition.x = inputState.mouse.position.x;
         inputState.mouse.lastPosition.y = inputState.mouse.position.y;
 
@@ -48,9 +48,9 @@ function main(): void {
 
     // Set up resizing
     glu.resizeCanvas(gl);
-    new window.ResizeObserver(((): void => {
+    new window.ResizeObserver((): void => {
         glu.resizeCanvas(gl);
-    })).observe(canvas);
+    }).observe(canvas);
 
     // Enable culling and depth testing
     gl.enable(gl.CULL_FACE);

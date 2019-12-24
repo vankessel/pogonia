@@ -158,15 +158,15 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     // This quad will be used to display post processing
     const renderQuad = new Quad(gl);
-    const drawClipFunc = RenderUtils.drawQuadFunction(convProgram);
-    const quadDrawer = new Drawer(renderQuad, drawClipFunc);
+    const drawQuadFunction = RenderUtils.drawQuadFunction(convProgram);
+    const quadDrawer = new Drawer(renderQuad, drawQuadFunction);
 
     const origin = new Cube(gl);
     const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
 
     // TODO: Remove skybox
     const skybox = new Cube(gl);
-    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(camera, skyboxProgram);
+    const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(gl, camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
 
     const fb = glu.createFramebuffer(gl);

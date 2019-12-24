@@ -46,7 +46,7 @@ void main() {
         }
     }
     // TODO: Batch normalization https://pytorch.org/docs/stable/nn.html#batchnorm2d
-    o_color = vec4(max(vec3(0.0, 0.0, 0.0), vec3(sum, sum, sum)) * debug, 1.0);
-//    o_color = texture(u_tex, v_texCoord);
+//    o_color = vec4(max(vec3(0.0, 0.0, 0.0), vec3(sum, sum, sum)) * debug, 1.0);
+    o_color = texture(u_tex, v_texCoord);
 //    o_color = vec4(texture(u_kernel, vec3(v_texCoord, 0)).xyz, 1.0);
 }

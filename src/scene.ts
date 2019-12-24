@@ -30,15 +30,15 @@ export class Updater<T> implements Updatable {
 
 export class Drawer<T> implements Drawable {
     target: T;
-    drawFunction: (target: T, gl: WebGL2RenderingContext) => void;
+    drawFunction: (gl: WebGL2RenderingContext, target: T) => void;
 
-    constructor(target: T, func: (target: T, gl: WebGL2RenderingContext) => void) {
+    constructor(target: T, func: (gl: WebGL2RenderingContext, target: T) => void) {
         this.target = target;
         this.drawFunction = func;
     }
 
     draw(gl: WebGL2RenderingContext): void {
-        this.drawFunction(this.target, gl);
+        this.drawFunction(gl, this.target);
     }
 }
 
