@@ -1,7 +1,7 @@
-import * as glu from './utils/webglUtils';
-import Scene from './scene';
+import * as glu from './utils/glUtils';
 import { initInputState, InputState } from './input';
 import initScene from './scenes/cityscape';
+import Scene from './scene';
 
 function update(deltaTime: number, scene: Scene, input: InputState): void {
     for (const updatable of scene.updatables) {
@@ -45,6 +45,7 @@ function main(): void {
     canvas.focus();
     const inputState = initInputState(canvas);
     const gl = glu.getContext(canvas);
+    gl.getExtension('EXT_color_buffer_float');
 
     // Set up resizing
     glu.resizeCanvas(gl);

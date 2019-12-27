@@ -1,6 +1,6 @@
 import { Vec4 } from 'gl-transform';
 import Scene, { Drawer } from '../scene';
-import * as glu from '../utils/webglUtils';
+import * as glu from '../utils/glUtils';
 import vertexShaderSource from '../shaders/vertex.glsl';
 import frgmntShaderSource from '../shaders/frgmnt.glsl';
 import skyboxVertexShaderSource from '../shaders/skybox/vertex.glsl';
@@ -36,9 +36,9 @@ function generateBuildings(
     camera: Camera,
     program: WebGLProgram,
 ): Drawer<Cube>[] {
-    const drawRoadFunc = RenderUtils.drawFunction(camera, program, LabelColors.ROAD);
-    const drawBuildingFunc = RenderUtils.drawFunction(camera, program, LabelColors.BUILDING);
-    const drawSidewalkFunc = RenderUtils.drawFunction(camera, program, LabelColors.SIDEWALK);
+    const drawRoadFunc = RenderUtils.drawFunction(gl, camera, program, LabelColors.ROAD);
+    const drawBuildingFunc = RenderUtils.drawFunction(gl, camera, program, LabelColors.BUILDING);
+    const drawSidewalkFunc = RenderUtils.drawFunction(gl, camera, program, LabelColors.SIDEWALK);
 
     const buildingWidthD2 = buildingWidth / 2;
     const buildingSpacing = buildingWidth + spacing;
@@ -162,7 +162,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const quadDrawer = new Drawer(renderQuad, drawQuadFunction);
 
     const origin = new Cube(gl);
-    const drawVegFunc = RenderUtils.drawFunction(camera, mainProgram, LabelColors.VEGETATION);
+    const drawVegFunc = RenderUtils.drawFunction(gl, camera, mainProgram, LabelColors.VEGETATION);
 
     // TODO: Remove skybox
     const skybox = new Cube(gl);

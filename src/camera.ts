@@ -2,16 +2,17 @@ import { Mat4, Vec3 } from 'gl-transform';
 import { Rigid } from './primitives';
 import { Updater } from './scene';
 import { InputState } from './input';
-import { World } from './utils/constants';
-import { getViewportInfo } from './utils/webglUtils';
+import { getViewportInfo } from './utils/glUtils';
 
 export default class Camera extends Rigid {
+    pitch = 0.0;
+    yaw = 0.0;
+
     readonly xFov: number;
     readonly aspect: number;
     readonly near: number;
     readonly far: number;
-
-    projection: Mat4;
+    readonly projection: Mat4;
 
     private transformMemoizedValue: Mat4;
     private inverseTransformMemoizedValue: Mat4;
@@ -54,23 +55,32 @@ export function initStandardCameraController(gl: WebGL2RenderingContext, camera:
     const yFovPerPixel = camera.xFov / (camera.aspect * viewportInfo.height);
     const sensitivity = 2;
     return new Updater(camera, (cameraToUpdate: Camera, deltaTime: number, input: InputState): void => {
-        let cameraDeltaX = 0;
-        let cameraDeltaY = 0;
         if (input.mouse.pressed && input.mouse.button === 0) {
-            cameraDeltaX = input.mouse.movement.x * xFovPerPixel * sensitivity;
-            cameraDeltaY = input.mouse.movement.y * yFovPerPixel * sensitivity;
+            cameraToUpdate.yaw   -= input.mouse.movement.x * xFovPerPixel * sensitivity;
+            cameraToUpdate.pitch -= input.mouse.movement.y * yFovPerPixel * sensitivity;
+            // Bound yaw
+            if (cameraToUpdate.yaw > Math.PI) {
+                cameraToUpdate.yaw -= 2 * Math.PI;
+            } else if (cameraToUpdate.yaw <= -Math.PI) {
+                cameraToUpdate.yaw += 2 * Math.PI;
+            }
+            // Clamp pitch
+            if (cameraToUpdate.pitch > Math.PI / 2) {
+                cameraToUpdate.pitch = Math.PI / 2;
+            } else if (cameraToUpdate.pitch < -Math.PI / 2) {
+                cameraToUpdate.pitch = -Math.PI / 2;
+            }
+            const tx = cameraToUpdate.transform[12];
+            const ty = cameraToUpdate.transform[13];
+            const tz = cameraToUpdate.transform[14];
+            cameraToUpdate.transform = Mat4.multiply(
+                Mat4.rotationYMatrix(cameraToUpdate.yaw),
+                Mat4.rotationXMatrix(cameraToUpdate.pitch),
+            );
+            cameraToUpdate.transform[12] = tx;
+            cameraToUpdate.transform[13] = ty;
+            cameraToUpdate.transform[14] = tz;
         }
-        const tx = cameraToUpdate.transform[12];
-        const ty = cameraToUpdate.transform[13];
-        const tz = cameraToUpdate.transform[14];
-        cameraToUpdate.transform[12] = 0;
-        cameraToUpdate.transform[13] = 0;
-        cameraToUpdate.transform[14] = 0;
-        cameraToUpdate.rotate(-cameraDeltaY, cameraToUpdate.getRight());
-        cameraToUpdate.rotate(-cameraDeltaX, World.UP);
-        cameraToUpdate.transform[12] = tx;
-        cameraToUpdate.transform[13] = ty;
-        cameraToUpdate.transform[14] = tz;
 
         if (input.keys.w) {
             cameraToUpdate.translate(0, 0, -deltaTime);

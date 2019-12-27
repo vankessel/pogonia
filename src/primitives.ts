@@ -1,5 +1,5 @@
-import { Vec3, Mat4 } from 'gl-transform';
-import * as glu from './utils/webglUtils';
+import { Mat4, Vec3 } from 'gl-transform';
+import * as glu from './utils/glUtils';
 
 interface Translatable {
     translate(x: number, y: number, z: number): void;

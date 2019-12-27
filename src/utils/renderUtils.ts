@@ -2,31 +2,38 @@ import { Vec4 } from 'gl-transform';
 import { Shape } from '../primitives';
 import Camera from '../camera';
 
+// TODO: This all is an inefficient helper class.
+//       Each render function redundantly prepares shader state.
+//       Replace with method of drawing objects in order of:
+//       shader > texture > something else I'm tired and continuing this later.
 export default class RenderUtils {
     static drawFunction(
+        gl: WebGL2RenderingContext,
         camera: Camera,
         program: WebGLProgram,
         color: Vec4 | number[],
     ): (gl: WebGL2RenderingContext, shape: Shape) => void {
-        return (gl: WebGL2RenderingContext, shape: Shape): void => {
+
+        const modelToWorldLoc = gl.getUniformLocation(program, 'u_modelToWorld');
+        const worldToViewLoc = gl.getUniformLocation(program, 'u_worldToView');
+        const ViewToClipLoc = gl.getUniformLocation(program, 'u_viewToClip');
+        const colorLoc = gl.getUniformLocation(program, 'u_color');
+
+        return (gl_: WebGL2RenderingContext, shape: Shape): void => {
             const staticShape = shape.constructor as typeof Shape;
 
-            gl.useProgram(program);
-            gl.bindVertexArray(staticShape.vao);
+            // TODO: Is this idempotent? Does only actually changing state affect performance?
+            gl_.useProgram(program);
+            gl_.bindVertexArray(staticShape.vao);
 
             // Uniforms
-            const modelToWorldLoc = gl.getUniformLocation(program, 'u_modelToWorld');
-            const worldToViewLoc = gl.getUniformLocation(program, 'u_worldToView');
-            const ViewToClipLoc = gl.getUniformLocation(program, 'u_viewToClip');
-            gl.uniformMatrix4fv(modelToWorldLoc, false, shape.transform);
-            gl.uniformMatrix4fv(worldToViewLoc, false, camera.getWorldToView());
-            gl.uniformMatrix4fv(ViewToClipLoc, false, camera.projection);
-
-            const colorLoc = gl.getUniformLocation(program, 'u_color');
-            gl.uniform4fv(colorLoc, color);
+            gl_.uniformMatrix4fv(modelToWorldLoc, false, shape.transform);
+            gl_.uniformMatrix4fv(worldToViewLoc, false, camera.getWorldToView());
+            gl_.uniformMatrix4fv(ViewToClipLoc, false, camera.projection);
+            gl_.uniform4fv(colorLoc, color);
 
             // Draw
-            gl.drawArrays(
+            gl_.drawArrays(
                 staticShape.mode,
                 0,
                 staticShape.positionData.length / 3,

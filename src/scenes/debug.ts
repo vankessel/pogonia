@@ -1,5 +1,5 @@
 import Scene, { Drawer } from '../scene';
-import * as glu from '../utils/webglUtils';
+import * as glu from '../utils/glUtils';
 import vertexShaderSource from '../shaders/vertex.glsl';
 import frgmntShaderSource from '../shaders/frgmnt.glsl';
 import skyboxVertexShaderSource from '../shaders/skybox/vertex.glsl';
@@ -37,7 +37,7 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
 
     const cube = new Cube(gl);
     cube.scaleUniform(0.25);
-    const drawFunction = RenderUtils.drawFunction(camera, mainProgram, [1, 0, 0, 1]);
+    const drawFunction = RenderUtils.drawFunction(gl, camera, mainProgram, [1, 0, 0, 1]);
     const cubeDrawer = new Drawer(cube, drawFunction);
 
     const skybox = new Cube(gl);
