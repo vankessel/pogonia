@@ -16,6 +16,7 @@ import skyboxTopSrc from '../../assets/skybox/top.jpg';
 import skyboxBottomSrc from '../../assets/skybox/bottom.jpg';
 import skyboxBackSrc from '../../assets/skybox/back.jpg';
 import skyboxFrontSrc from '../../assets/skybox/front.jpg';
+import stateDict from '../../assets/model.json';
 
 class LabelColors {
     static readonly ROAD = Vec4.from([128, 64, 128, 255].map((val) => val / 255));
