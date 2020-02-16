@@ -1,7 +1,6 @@
 const path = require('path');
 
 // Make sure devServer.publicPath always starts and ends with a forward slash.
-const publicPath = '/build/';
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 
 module.exports = {
@@ -28,18 +27,18 @@ module.exports = {
                 exclude: nodeModulesPath,
                 options: {
                     name: '[path][name].[ext]',
-                    publicPath: publicPath,
+                    publicPath: '/build/',
                 },
             },
         ],
     },
     output: {
-        path: path.resolve(__dirname, publicPath),
+        path: path.resolve(__dirname, 'build/'),
         filename: 'bundle.js',
     },
     devtool: 'source-map',
     devServer: {
         contentBase: __dirname,
-        publicPath: publicPath,
+        publicPath: '/build/',
     },
 };
