@@ -15,9 +15,9 @@ Why TypeScript and WebGL? TypeScript is fast to prototype in and I plan on also 
 
 `cd path/to/pogonia`
 
-`npm link ../gl-transform`
-
 `npm i`
+
+`npm link ../gl-transform`
 
 `npm run serve`
 
