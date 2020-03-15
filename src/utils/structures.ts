@@ -21,7 +21,7 @@ export class OrderedPair<L, R> {
 /**
  * A bipartite graph between two sets of L and R.
  */
-export class Bipartite<L, R> extends OrderedPair<Set<L>, Set<R>> {
+export class Bipartite<L extends object, R extends object> extends OrderedPair<Set<L>, Set<R>> {
     /**
      * Returns left set by cloning. Client code should not modify underlying collection directly.
      * This could result in an invalid bipartite graph.
@@ -48,8 +48,10 @@ export class Bipartite<L, R> extends OrderedPair<Set<L>, Set<R>> {
 
     private readonly _edges: Set<OrderedPair<L, R>>;
 
-    private leftNodeToEdgesMap: Map<L, Set<OrderedPair<L, R>>>;
-    private rightNodeToEdgesMap: Map<R, Set<OrderedPair<L, R>>>;
+    // These can be a WeakMap since nodes will be owned by edges and the left and right sets.
+    // Iteration can be done on the left and right sets if needed.
+    private leftNodeToEdgesMap: WeakMap<L, Set<OrderedPair<L, R>>>;
+    private rightNodeToEdgesMap: WeakMap<R, Set<OrderedPair<L, R>>>;
 
     constructor(edges: Iterable<OrderedPair<L, R>> = [], left: Iterable<L> = [], right: Iterable<R> = []) {
         super(new Set(left), new Set(right));
