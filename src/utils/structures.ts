@@ -1,5 +1,8 @@
 // TODO: Consider separating this out into a different library.
 
+/**
+ * An ordered pair between L and R.
+ */
 export class OrderedPair<L, R> {
     get left(): L {
         return this._left;

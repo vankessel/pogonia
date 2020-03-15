@@ -1,10 +1,16 @@
 import { Mat4, Vec3 } from 'gl-transform';
 import * as glu from './utils/glUtils';
 
+/**
+ * Something that can be translated.
+ */
 interface Translatable {
     translate(x: number, y: number, z: number): void;
 }
 
+/**
+ * Something that can be rotated.
+ */
 interface Rotatable {
     rotate(radians: number, axis: Vec3): void;
 
@@ -15,13 +21,21 @@ interface Rotatable {
     rotateZ(radians: number): void;
 }
 
+/**
+ * Something that can be scaled.
+ */
 interface Scalable {
     scale(x: number, y: number, z: number): void;
 
     scaleUniform(s: number): void;
 }
 
-// All transformations with determinant = 1
+/**
+ * Supports transformations that preserve distances, angles, and orientation.
+ * A reflection transformation preserves distances and angles, but not orientation.
+ *
+ * Equivalently, transformation matrices with determinant equal to 1.
+ */
 export class Rigid extends glu.StaticConstructor implements Translatable, Rotatable {
     transform: Mat4;
 
@@ -33,6 +47,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-useless-return
     static staticConstructor(gl: WebGL2RenderingContext): void { return; }
 
+    /**
+     * Tries to return the inverse of the object's transform
+     */
     getInverseTransform(): Mat4 {
         const inverseTransform = Mat4.invert(this.transform);
         if (!inverseTransform) {
@@ -41,6 +58,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         return inverseTransform;
     }
 
+    /**
+     * Local +x direction
+     */
     getRight(): Vec3 {
         return Vec3.fromValues(
             this.transform[0],
@@ -49,6 +69,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         );
     }
 
+    /**
+     * Local -x direction
+     */
     getLeft(): Vec3 {
         return Vec3.fromValues(
             -this.transform[0],
@@ -57,6 +80,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         );
     }
 
+    /**
+     * Local +y direction
+     */
     getUp(): Vec3 {
         return Vec3.fromValues(
             this.transform[4],
@@ -65,6 +91,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         );
     }
 
+    /**
+     * Local -y direction
+     */
     getDown(): Vec3 {
         return Vec3.fromValues(
             -this.transform[4],
@@ -73,7 +102,10 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         );
     }
 
-    getForward(): Vec3 {
+    /**
+     * Local +z direction
+     */
+    getBackward(): Vec3 {
         return Vec3.fromValues(
             this.transform[8],
             this.transform[9],
@@ -81,7 +113,10 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
         );
     }
 
-    getBackward(): Vec3 {
+    /**
+     * Local -z direction
+     */
+    getForward(): Vec3 {
         return Vec3.fromValues(
             -this.transform[8],
             -this.transform[9],
@@ -110,6 +145,9 @@ export class Rigid extends glu.StaticConstructor implements Translatable, Rotata
     }
 }
 
+/**
+ * Supports scaling and reflections alongside rigid transformations
+ */
 export class Affine extends Rigid implements Scalable {
     scale(x: number, y: number, z: number): void {
         Mat4.scale(this.transform, x, y, z, this.transform);
@@ -120,6 +158,9 @@ export class Affine extends Rigid implements Scalable {
     }
 }
 
+/**
+ * A shape has vertices with position and normal vectors, and can be transformed in 3D space.
+ */
 export abstract class Shape extends Affine {
     static vao: WebGLVertexArrayObject;
     static mode = WebGL2RenderingContext.TRIANGLES;
@@ -136,7 +177,10 @@ export abstract class Shape extends Affine {
     static surfaceNormalData: Float32Array;
     static surfaceNormalBuffer: WebGLBuffer;
 
-
+    /**
+     * Set up vertex array object with position and normal data.
+     * @param gl
+     */
     static staticConstructor(gl: WebGL2RenderingContext): void {
         // VAO
         this.vao = glu.createVao(gl);
@@ -173,6 +217,9 @@ export abstract class Shape extends Affine {
         gl.vertexAttribDivisor(glu.AttribLoc.NORMAL, 0);
     }
 
+    /**
+     * Compute normals for each triangle
+     */
     static computeSurfaceNormals(): Float32Array {
         const normals = new Float32Array(this.positionData.length);
         for (let idx = 0; idx < this.positionData.length; idx += 9) {

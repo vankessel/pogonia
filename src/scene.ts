@@ -2,10 +2,16 @@ import Camera from './camera';
 import { InputState } from './input';
 import { Bipartite, OrderedPair } from './utils/structures';
 
+/**
+ * Something that can be updated.
+ */
 export interface Updatable {
     update(deltaTime: number, input: InputState): void;
 }
 
+/**
+ * Something that can be drawn.
+ */
 export interface Drawable {
     draw(gl: WebGL2RenderingContext): void;
 }
@@ -92,21 +98,29 @@ export class SequencedRenderer extends Bipartite<RenderTarget, Drawable> impleme
     private readonly _renderTargets: RenderTarget[];
 
     constructor(
-        framebufferRenderSteps: RenderTarget[],
+        renderTargets: RenderTarget[],
         edges?: Iterable<Renderable>,
         drawables?: Iterable<Drawable>,
     ) {
-        super(edges, framebufferRenderSteps, drawables);
-        this._renderTargets = framebufferRenderSteps;
+        super(edges, renderTargets, drawables);
+        this._renderTargets = renderTargets;
     }
 
-    static genRenderables(
-        renderTarget: RenderTarget,
-        drawables: Iterable<Drawable>,
-    ): Set<Renderable> {
+    static genRenderables(renderTarget: RenderTarget, drawables: Iterable<Drawable>): Set<Renderable> {
         return new Set([...drawables].map<Renderable>(
             (drawable) => new OrderedPair(renderTarget, drawable),
         ));
+    }
+
+    addRenderables(renderables: Iterable<Renderable>): SequencedRenderer {
+        for (const renderable of renderables) {
+            this.addEdge(renderable);
+        }
+        return this;
+    }
+
+    genAndAddRenderables(renderTarget: RenderTarget, drawables: Iterable<Drawable>): SequencedRenderer {
+        return this.addRenderables(SequencedRenderer.genRenderables(renderTarget, drawables));
     }
 
     draw(gl: WebGL2RenderingContext): void {
@@ -121,6 +135,9 @@ export class SequencedRenderer extends Bipartite<RenderTarget, Drawable> impleme
     }
 }
 
+/**
+ * A scene has an active camera and contains things that can be updated or drawn.
+ */
 export default class Scene implements Updatable, Drawable {
     camera: Camera;
     updatables: Updatable[];

@@ -24,10 +24,18 @@ function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: I
 }
 
 function main(): void {
-    // Set up context
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+
+    // Focus canvas initially and on mouse enter
     canvas.focus();
+    canvas.addEventListener('mouseenter', () => {
+        canvas.focus();
+    });
+
+    // Prepare the input state and event handlers
     const inputState = initInputState(canvas);
+
+    // Set up context
     const gl = glu.getContext(canvas);
     gl.getExtension('EXT_color_buffer_float');
 
@@ -44,6 +52,13 @@ function main(): void {
     gl.depthFunc(gl.LEQUAL);
     gl.clearColor(0, 0, 0, 1);
 
+    // TODO: Support switching between scenes
+    // The following scenario could fail because the second line will initialize a different gl state.
+    //
+    // const scene1 = scene1.initScene(gl);
+    // const scene2 = scene2.initScene(gl);
+    // startRenderLoop(gl, scene1, inputState);
+    //
     const scene = initScene(gl);
     startRenderLoop(gl, scene, inputState);
 }

@@ -2,7 +2,7 @@ import { Vec4 } from 'gl-transform';
 import { Shape } from '../primitives';
 import Camera from '../camera';
 
-// TODO: This all is an inefficient helper class.
+// TODO: This all needs to be replaced.
 //       Each render function redundantly prepares shader state.
 //       Replace with method of drawing objects in order of:
 //       shader > texture > something else I'm tired and continuing this later.

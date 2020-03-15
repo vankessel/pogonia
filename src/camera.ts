@@ -14,6 +14,7 @@ export default class Camera extends Rigid {
     readonly far: number;
     readonly projection: Mat4;
 
+    // Memoize the inverse transform to prevent expensive inversions.
     private transformMemoizedValue: Mat4;
     private inverseTransformMemoizedValue: Mat4;
 
@@ -28,10 +29,17 @@ export default class Camera extends Rigid {
         this.inverseTransformMemoizedValue = this.getInverseTransform();
     }
 
+    /**
+     * Returns the direction the camera is pointing.
+     */
     getDirection(): Vec3 {
-        return this.getBackward();
+        return this.getForward();
     }
 
+    /**
+     * Returns the camera's world to view matrix.
+     * The matrix that would transform the camera to the origin and point it down the -z axis.
+     */
     getWorldToView(): Mat4 {
         if (!Mat4.equals(this.transform, this.transformMemoizedValue)) {
             this.transformMemoizedValue = Mat4.clone(this.transform);
@@ -40,6 +48,10 @@ export default class Camera extends Rigid {
         return Mat4.clone(this.inverseTransformMemoizedValue);
     }
 
+    /**
+     * Returns a world to view matrix as if the camera were positioned at the origin.
+     * This is useful for skyboxes as we do not want them affected by parallax of movement.
+     */
     getSkyboxWorldToView(): Mat4 {
         const untranslated = this.getWorldToView();
         untranslated[12] = 0;

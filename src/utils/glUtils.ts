@@ -11,7 +11,7 @@ export interface AttribOptions {
     offset: GLintptr;
 }
 
-// This base class is meant to mimic Java's static constructor concept.
+// This base class is meant to mimic Java's static constructor concept. TypeScript does not support this.
 // The static constructor is meant to be run once on the first object's initialization.
 // The `staticCopy` variable is to enable polymorphism. In other words, each subclass
 // should keep track if its static constructor has been called.

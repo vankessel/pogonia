@@ -11,6 +11,7 @@ mat4 negate = mat4(-1);
 
 void main()
 {
+    // Flip the skybox inside out so the front face points inward and doesn't get culled.
     vec4 a_position = negate * a_position;
     vec4 clipSpace = u_viewToClip * u_worldToView * a_position;
 

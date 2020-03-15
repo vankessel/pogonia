@@ -9,8 +9,7 @@ to accomplish:
 2. Move the camera with user input.
 3. Feed a convolutional neural network's parameters into shaders.
 
-Why TypeScript and WebGL?
-TypeScript is incredibly fast to prototype in and I plan on also using this as a learning aid in my blog.
+Why TypeScript and WebGL? TypeScript is fast to prototype in and I plan on also using this as a learning aid in my blog.
 
 ## Running
 

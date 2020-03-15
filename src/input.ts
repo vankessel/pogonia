@@ -1,3 +1,6 @@
+/**
+ * Represents the state of user input.
+ */
 export interface InputState {
     mouse: {
         pressed: boolean;
@@ -21,6 +24,10 @@ export interface InputState {
     };
 }
 
+/**
+ * Initialize and return an input state object that is modified on input events.
+ * @param canvas: The canvas element.
+ */
 export function initInputState(canvas: HTMLCanvasElement): InputState {
     const input: InputState = {
         mouse: {
@@ -58,10 +65,6 @@ export function initInputState(canvas: HTMLCanvasElement): InputState {
     canvas.addEventListener('mousemove', (event) => {
         input.mouse.position.x = event.offsetX;
         input.mouse.position.y = event.offsetY;
-    });
-
-    canvas.addEventListener('mouseenter', () => {
-        canvas.focus();
     });
 
     canvas.addEventListener('keydown', (event) => {
