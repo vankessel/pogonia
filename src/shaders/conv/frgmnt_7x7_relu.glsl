@@ -19,12 +19,13 @@ uniform int u_features;
 
 out vec4 o_color;
 
-float debug = 1.0 / 1.0;
+float debug = 2.0 / 1.0;
 
 float pixelDist = 1.0 / 256.0;
 float kernelDist = 1.0 / 7.0;
 
 void main() {
+    vec2 kernelCoord = vec2(v_texCoord.x, 1.0 - v_texCoord.y);
     float sum = 0.0;
     for (int feature = 0; feature < u_features; feature++) {
         for (float x = 0.0; x < 7.0; x++) {
@@ -35,7 +36,7 @@ void main() {
                 sum += dot(
                     texture(
                         u_tex,
-                        v_texCoord + vec2(-3.0 + x, -3.0 + y) * pixelDist
+                        kernelCoord + vec2(-3.0 + x, -3.0 + y) * pixelDist
                     ),
                     texture(
                         u_kernel,
@@ -46,7 +47,12 @@ void main() {
         }
     }
     // TODO: Batch normalization https://pytorch.org/docs/stable/nn.html#batchnorm2d
+    // Example visual of first conv layer
 //    o_color = vec4(max(vec3(0.0, 0.0, 0.0), vec3(sum, sum, sum)) * debug, 1.0);
+    // No post processing
     o_color = texture(u_tex, v_texCoord);
-//    o_color = vec4(texture(u_kernel, vec3(v_texCoord, 0)).xyz, 1.0);
+    // Show kernel
+//    o_color = vec4(texture(u_kernel, vec3(kernelCoord, 0)).xyz, 1.0);
+    // Show kernel coords
+//    o_color = vec4(kernelCoord.x, kernelCoord.y, 0.0, 1.0);
 }

@@ -3,22 +3,6 @@ import { initInputState, InputState } from './input';
 import initScene from './scenes/cityscape';
 import Scene from './scene';
 
-function update(deltaTime: number, scene: Scene, input: InputState): void {
-    for (const updatable of scene.updatables) {
-        updatable.update(deltaTime, input);
-    }
-}
-
-function draw(gl: WebGL2RenderingContext, deltaTime: number, scene: Scene): void {
-    for (const renderable of scene.renderables) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, renderable.framebuffer);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        for (const drawable of renderable.drawables) {
-            drawable.draw(gl);
-        }
-    }
-}
-
 function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: InputState): void {
     let lastMilliseconds = performance.now();
 
@@ -27,8 +11,8 @@ function startRenderLoop(gl: WebGL2RenderingContext, scene: Scene, inputState: I
 
         inputState.mouse.movement.x = inputState.mouse.position.x - inputState.mouse.lastPosition.x;
         inputState.mouse.movement.y = inputState.mouse.position.y - inputState.mouse.lastPosition.y;
-        update(deltaTime, scene, inputState);
-        draw(gl, deltaTime, scene);
+        scene.update(deltaTime, inputState);
+        scene.draw(gl);
         inputState.mouse.lastPosition.x = inputState.mouse.position.x;
         inputState.mouse.lastPosition.y = inputState.mouse.position.y;
 

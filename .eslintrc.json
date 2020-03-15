@@ -40,6 +40,7 @@
         "no-mixed-operators": "off",
         "no-param-reassign": "off",
         "no-bitwise": "off",
+        "no-underscore-dangle": "off",
         "max-classes-per-file": "off",
         "@typescript-eslint/explicit-function-return-type": [ "error", { "allowHigherOrderFunctions": false } ],
         "camelcase": "off",

@@ -1,8 +1,7 @@
 const path = require('path');
-
-// Make sure devServer.publicPath always starts and ends with a forward slash.
 const nodeModulesPath = path.resolve(__dirname, 'node_modules');
 
+// Make sure devServer.publicPath always starts and ends with a forward slash.
 module.exports = {
     mode: 'development',
     entry: path.resolve(__dirname, 'src', 'index.ts'),

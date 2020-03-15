@@ -1,4 +1,4 @@
-import Scene, { Drawer } from '../scene';
+import Scene, { Drawer, RenderTarget, SequencedRenderer } from '../scene';
 import * as glu from '../utils/glUtils';
 import vertexShaderSource from '../shaders/vertex.glsl';
 import frgmntShaderSource from '../shaders/frgmnt.glsl';
@@ -43,19 +43,24 @@ export default function initScene(gl: WebGL2RenderingContext): Scene {
     const skybox = new Cube(gl);
     const skyboxDrawFunction = RenderUtils.drawSkyboxFunction(gl, camera, skyboxProgram);
     const skyboxDrawer = new Drawer(skybox, skyboxDrawFunction);
+
+    const nullRenderTarget = new RenderTarget(null);
     const scene = new Scene(
         camera,
         [
             cameraController,
         ],
         [
-            {
-                framebuffer: null,
-                drawables: [
-                    cubeDrawer,
-                    skyboxDrawer,
-                ],
-            },
+            new SequencedRenderer(
+                [nullRenderTarget],
+                SequencedRenderer.genRenderables(
+                    nullRenderTarget,
+                    [
+                        cubeDrawer,
+                        skyboxDrawer,
+                    ],
+                ),
+            ),
         ],
     );
 

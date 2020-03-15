@@ -1,5 +1,6 @@
 import Camera from './camera';
 import { InputState } from './input';
+import { Bipartite, OrderedPair } from './utils/structures';
 
 export interface Updatable {
     update(deltaTime: number, input: InputState): void;
@@ -9,32 +10,49 @@ export interface Drawable {
     draw(gl: WebGL2RenderingContext): void;
 }
 
-export interface Renderable {
-    framebuffer: WebGLFramebuffer | null;
-    drawables: Drawable[];
-}
+/**
+ * Class that updates a target object with a particular function.
+ *
+ * If you had two sets, one of objects of type T, one of functions taking type T each instance of this class represents
+ * a particular mapping from object to function of a
+ * [non-injective](https://en.wikipedia.org/wiki/Bijection,_injection_and_surjection) map.
+ *
+ * This is why target is a single instance rather than a collection.
+ */
+export class Updater<T> extends OrderedPair<T, (a: T, deltaTime: number, b: InputState) => void> implements Updatable {
+    get target(): T {
+        return this.left;
+    }
 
-export class Updater<T> implements Updatable {
-    target: T;
-    updateFunction: (target: T, deltaTime: number, input: InputState) => void;
+    get updateFunction(): (target: T, deltaTime: number, input: InputState) => void {
+        return this.right;
+    }
 
-    constructor(target: T, func: (target: T, deltaTime: number, input: InputState) => void) {
-        this.target = target;
-        this.updateFunction = func;
+    // eslint-disable-next-line no-useless-constructor
+    constructor(target: T, updateFunc: (target: T, deltaTime: number, input: InputState) => void) {
+        super(target, updateFunc);
     }
 
     update(deltaTime: number, input: InputState): void {
-        this.updateFunction(this.target, deltaTime, input);
+        this.right(this.left, deltaTime, input);
     }
 }
 
-export class Drawer<T> implements Drawable {
-    target: T;
-    drawFunction: (gl: WebGL2RenderingContext, target: T) => void;
+/**
+ * Class that draws a target object with a particular function
+ */
+export class Drawer<T> extends OrderedPair<T, (gl: WebGL2RenderingContext, target: T) => void> implements Drawable {
+    get target(): T {
+        return this.left;
+    }
 
-    constructor(target: T, func: (gl: WebGL2RenderingContext, target: T) => void) {
-        this.target = target;
-        this.drawFunction = func;
+    get drawFunction(): (gl: WebGL2RenderingContext, target: T) => void {
+        return this.right;
+    }
+
+    // eslint-disable-next-line no-useless-constructor
+    constructor(target: T, drawFunction: (gl: WebGL2RenderingContext, target: T) => void) {
+        super(target, drawFunction);
     }
 
     draw(gl: WebGL2RenderingContext): void {
@@ -42,18 +60,91 @@ export class Drawer<T> implements Drawable {
     }
 }
 
-export default class Scene {
+/**
+ * What will be rendered to. Different render targets can use the same framebuffer.
+ */
+export class RenderTarget {
+    framebuffer: WebGLFramebuffer | null;
+
+    constructor(framebuffer: WebGLFramebuffer | null) {
+        this.framebuffer = framebuffer;
+    }
+}
+
+/**
+ * The most atomic render that can be performed is between a drawable object and a render target.
+ */
+export type Renderable = OrderedPair<RenderTarget, Drawable>;
+
+/**
+ * A sequence of RenderTargets and associated Renderables that will be drawn.
+ * The color and depth buffers are cleared between each new RenderTarget.
+ */
+export class SequencedRenderer extends Bipartite<RenderTarget, Drawable> implements Drawable {
+    get renderTargets(): RenderTarget[] {
+        return this._renderTargets.slice();
+    }
+
+    get drawables(): Set<Drawable> {
+        return this.right;
+    }
+
+    private readonly _renderTargets: RenderTarget[];
+
+    constructor(
+        framebufferRenderSteps: RenderTarget[],
+        edges?: Iterable<Renderable>,
+        drawables?: Iterable<Drawable>,
+    ) {
+        super(edges, framebufferRenderSteps, drawables);
+        this._renderTargets = framebufferRenderSteps;
+    }
+
+    static genRenderables(
+        renderTarget: RenderTarget,
+        drawables: Iterable<Drawable>,
+    ): Set<Renderable> {
+        return new Set([...drawables].map<Renderable>(
+            (drawable) => new OrderedPair(renderTarget, drawable),
+        ));
+    }
+
+    draw(gl: WebGL2RenderingContext): void {
+        for (const renderTarget of this._renderTargets) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget.framebuffer);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            const edges = this.edgesOfLeftNode(renderTarget) || [];
+            for (const edge of edges) {
+                edge.right.draw(gl);
+            }
+        }
+    }
+}
+
+export default class Scene implements Updatable, Drawable {
     camera: Camera;
     updatables: Updatable[];
-    renderables: Renderable[];
+    drawables: Drawable[];
 
     constructor(
         camera: Camera,
         updatables: Updatable[],
-        renderables: Renderable[],
+        drawables: Drawable[],
     ) {
         this.camera = camera;
         this.updatables = updatables;
-        this.renderables = renderables;
+        this.drawables = drawables;
+    }
+
+    update(deltaTime: number, input: InputState): void {
+        for (const updatable of this.updatables) {
+            updatable.update(deltaTime, input);
+        }
+    }
+
+    draw(gl: WebGL2RenderingContext): void {
+        for (const drawable of this.drawables) {
+            drawable.draw(gl);
+        }
     }
 }
