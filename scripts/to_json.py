@@ -95,9 +95,9 @@ def parse_dict_list_keys(state_dict):
     return state_dict
 
 
-def dump_json(state_dict):
+def dump_json(state_dict, file_path):
     b = unflatten_state_dict(state_dict)
     c = parse_dict_list_keys(b)
 
-    with open('model.json', 'w') as f:
+    with open(file_path, 'w') as f:
         json.dump(c, f)

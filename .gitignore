@@ -1,7 +1,9 @@
 .idea
+__pycache__/
 node_modules/
 build/
 dist/
 assets/
 venv/
 *iml
+*.json

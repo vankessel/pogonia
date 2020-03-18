@@ -102,4 +102,4 @@ if __name__ == '__main__':
     )
 
     with (file_path.parent / 'formatted_model.json').open('w') as f:
-        json.dump(corrected, f)
+        json.dump(corrected, f, indent=2)

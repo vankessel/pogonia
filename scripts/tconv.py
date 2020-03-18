@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import json
+from to_json import dump_json
 
 inputs = torch.ones(1, 3, 2, 2)
 
@@ -47,6 +49,9 @@ print(out)
 # print("Both:")
 # print(out.shape)
 # print(out)
+
+print("Saving")
+dump_json(up.state_dict(), "SDT.json")
 
 print("State Dict:")
 print(up.state_dict()['weight'].shape)
