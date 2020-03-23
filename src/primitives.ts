@@ -4,14 +4,14 @@ import * as glu from './utils/glUtils';
 /**
  * Something that can be translated.
  */
-interface Translatable {
+export interface Translatable {
     translate(x: number, y: number, z: number): void;
 }
 
 /**
  * Something that can be rotated.
  */
-interface Rotatable {
+export interface Rotatable {
     rotate(radians: number, axis: Vec3): void;
 
     rotateX(radians: number): void;
@@ -24,7 +24,7 @@ interface Rotatable {
 /**
  * Something that can be scaled.
  */
-interface Scalable {
+export interface Scalable {
     scale(x: number, y: number, z: number): void;
 
     scaleUniform(s: number): void;

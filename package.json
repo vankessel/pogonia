@@ -2,16 +2,22 @@
     "name": "pogonia",
     "version": "0.0.0",
     "description": "A powerful and elegant WebGL game engine.",
-    "main": "./dist/index.js",
+    "author": "Kevin van Kessel <npm@vankessel.io> (https://vankessel.io/)",
+    "main": "./dist/src/index.js",
+    "types": "./dist/types/index.d.ts",
     "scripts": {
-        "clean": "rm -rf build dist",
-        "build": "npm run clean && webpack -p",
+        "clean": "rm -rf dist",
+        "build": "npm run clean && npx tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
         "serve": "webpack-dev-server --hot"
     },
+    "homepage": "https://github.com/vankessel/pogonia",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/vankessel/webgl.git"
+        "url": "git+https://github.com/vankessel/pogonia.git"
+    },
+    "bugs": {
+        "url": "https://github.com/vankessel/pogonia/issues"
     },
     "keywords": [
         "gl",
@@ -21,13 +27,7 @@
         "engine",
         "typescript"
     ],
-    "author": "Kevin van Kessel <npm@vankessel.io> (https://vankessel.io/)",
-    "bugs": {
-        "url": "https://github.com/vankessel/webgl/issues"
-    },
-    "homepage": "https://github.com/vankessel/webgl#readme",
     "devDependencies": {
-        "@types/gl-matrix": "^2.4.5",
         "@typescript-eslint/eslint-plugin": "^2.9.0",
         "@typescript-eslint/parser": "^2.9.0",
         "eslint": "^6.7.1",

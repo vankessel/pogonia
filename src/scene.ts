@@ -1,4 +1,4 @@
-import Camera from './camera';
+import { Camera } from './camera';
 import { InputState } from './input';
 import { Bipartite, OrderedPair } from './utils/structures';
 
@@ -106,10 +106,15 @@ export class SequencedRenderer extends Bipartite<RenderTarget, Drawable> impleme
         this._renderTargets = renderTargets;
     }
 
-    static genRenderables(renderTarget: RenderTarget, drawables: Iterable<Drawable>): Set<Renderable> {
-        return new Set([...drawables].map<Renderable>(
+    /**
+     * Generates a set of Renderables, one for each drawable. From the render target to that drawable.
+     * @param renderTarget The render target for the drawables.
+     * @param drawables The drawables to be rendered to the render target.
+     */
+    static genRenderables(renderTarget: RenderTarget, drawables: Iterable<Drawable>): Renderable[] {
+        return [...drawables].map<Renderable>(
             (drawable) => new OrderedPair(renderTarget, drawable),
-        ));
+        );
     }
 
     addRenderables(renderables: Iterable<Renderable>): SequencedRenderer {
@@ -138,7 +143,7 @@ export class SequencedRenderer extends Bipartite<RenderTarget, Drawable> impleme
 /**
  * A scene has an active camera and contains things that can be updated or drawn.
  */
-export default class Scene implements Updatable, Drawable {
+export class Scene implements Updatable, Drawable {
     camera: Camera;
     updatables: Updatable[];
     drawables: Drawable[];

@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "es2015",
         "target": "es2015",
-        "outDir": "./dist",
+        "outDir": "./dist/src",
         "strict": true,
         "declaration": true,
         "declarationDir": "./dist/types",
@@ -11,8 +11,6 @@
         "moduleResolution": "node"
     },
     "include": [
-        "src/**/*",
-        "types/**/*",
-        "assets/**/*"
+        "src/**/*"
     ]
 }
