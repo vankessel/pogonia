@@ -4,8 +4,9 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'index.ts'),
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: __dirname,
-        publicPath: '/dist/',
+	static: {
+            directory: path.join(__dirname, 'public'),
+        },
     },
     module: {
         rules: [
@@ -25,7 +26,6 @@ module.exports = {
                 exclude: /node_modules/,
                 options: {
                     name: '[path][name].[ext]',
-                    publicPath: 'dist/',
                 },
             },
         ],
@@ -34,7 +34,8 @@ module.exports = {
         extensions: ['.ts', '.js'],
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'public', 'dist'),
         filename: 'bundle.js',
+        publicPath: '/dist/'
     },
 };

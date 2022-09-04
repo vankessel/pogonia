@@ -175,9 +175,9 @@ export abstract class Shape extends Affine {
     static computeSurfaceNormals(): Float32Array {
         const normals: number[] = [];
         for (let idx = 0; idx < this.positionData.length; idx+=9) {
-            const first = vec3.clone(this.positionData.slice(idx, idx + 3));
-            const second = vec3.clone(this.positionData.slice(idx + 3, idx + 6));
-            const third = vec3.clone(this.positionData.slice(idx + 6, idx + 9));
+            const first = vec3.clone(Array.from(this.positionData.slice(idx, idx + 3)));
+            const second = vec3.clone(Array.from(this.positionData.slice(idx + 3, idx + 6)));
+            const third = vec3.clone(Array.from(this.positionData.slice(idx + 6, idx + 9)));
 
             const a = vec3.subtract(vec3.create(), second, first);
             const b = vec3.subtract(vec3.create(), third, first);
