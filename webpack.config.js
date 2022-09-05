@@ -5,7 +5,7 @@ module.exports = {
     devtool: 'inline-source-map',
     devServer: {
 	static: {
-            directory: path.join(__dirname, 'public'),
+            directory: path.join(__dirname, '/'),
         },
     },
     module: {
@@ -34,8 +34,8 @@ module.exports = {
         extensions: ['.ts', '.js'],
     },
     output: {
-        path: path.resolve(__dirname, 'public', 'dist'),
         filename: 'bundle.js',
-        publicPath: '/dist/'
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: 'dist/' // Must be relative to work on github pages, must have trailing slash
     },
 };
